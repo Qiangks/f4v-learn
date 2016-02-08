@@ -206,6 +206,7 @@ public:
     virtual ~TrakBox();
 public:
     virtual int initialize(FILE* fp);
+    virtual int read(FILE* fp, int start, int end);
     virtual void display();
 };
 
@@ -219,6 +220,8 @@ public:
     virtual ~MvexBox();
 public:
     virtual int initialize(FILE* fp);
+    virtual int read(FILE* fp, int start, int end);
+    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -279,6 +282,368 @@ public:
     virtual ~UdtaBox();
 public:
     virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class TkhdBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint64_t creation_time;
+    uint64_t modification_time;
+    uint32_t trak_id;
+    uint64_t duration;
+
+public:
+    TkhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~TkhdBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class EdtsBox : public F4vBox
+{
+public:
+    ElstBox* elstx;
+public:
+    EdtsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~EdtsBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual int read(FILE* fp, int start, int end);
+    virtual int add(F4vBox* fb);
+    virtual void display();
+};
+
+class ElstBox : public F4vBox
+{
+public:
+
+public:
+    ElstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~ElstBox();
+public:
+    virtual void display();
+};
+
+class MdiaBox : public F4vBox
+{
+public:
+    MdhdBox* mdhdx;
+    HdlrBox* hdlrx;
+    MinfBox* minfx;
+public:
+    MdiaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MdiaBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual int read(FILE* fp, int start, int end);
+    virtual int add(F4vBox* fb);
+    virtual void display();
+};
+
+class MdhdBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint64_t creation_time;
+    uint64_t modification_time;
+    uint32_t timescale;
+    uint64_t duration;
+public:
+    MdhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MdhdBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class HdlrBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t handler_type;
+public:
+    HdlrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~HdlrBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class MinfBox : public F4vBox
+{
+public:
+    VmhdBox* vmhdx;
+    SmhdBox* smhdx;
+    HmhdBox* hmhdx;
+    NmhdBox* nmhdx;
+    DinfBox* dinfx;
+    StblBox* stblx;
+public:
+    MinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MinfBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual int read(FILE* fp, int start, int end);
+    virtual int add(F4vBox* fb);
+    virtual void display();
+};
+
+class VmhdBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t graphic_mode;
+    uint32_t op_color[3];
+public:
+    VmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~VmhdBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class SmhdBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    float balance;
+public:
+    SmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~SmhdBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class HmhdBox : public F4vBox
+{
+public:
+
+public:
+    HmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~HmhdBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class NmhdBox : public F4vBox
+{
+public:
+
+public:
+    NmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~NmhdBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class DinfBox : public F4vBox
+{
+public:
+    DrefBox* drefx;
+public:
+    DinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~DinfBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual int read(FILE* fp, int start, int end);
+    virtual int add(F4vBox* fb);
+    virtual void display();
+};
+
+class DrefBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t entry_count;
+    UrlBox* urlx;
+public:
+    DrefBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~DrefBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual int read(FILE* fp, int start, int end);
+    virtual int add(F4vBox* fb);
+    virtual void display();
+};
+
+class UrlBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+public:
+    UrlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~UrlBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class StblBox : public F4vBox
+{
+public:
+public:
+    StblBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~StblBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class StsdBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
+    std::vector<F4vBox*>descriptions;
+public:
+    StsdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~StsdBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+typedef struct _stts_record{
+    uint32_t sample_count;
+    uint32_t sample_delta;
+}SttsRecord;
+
+class SttsBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
+    std::vector<SttsRecord> stts_records;
+public:
+    SttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~SttsBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+typedef struct _ctts_record{
+    uint32_t sample_count;
+    uint32_t sample_offset;
+}CttsRecord;
+
+class CttsBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
+    std::vector<CttsRecord>ctts_records;
+public:
+    CttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~CttsBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+typedef struct _stsc_record{
+    uint32_t first_chunk;
+    // samples per chunk
+    uint32_t spc;
+    // sample description index
+    uint32_t sdi;
+} StscRecord;
+
+class StscBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
+    std::vector<StscRecord> stsc_records;
+public:
+    StscBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~StscBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class StszBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t constant_size;
+    uint32_t size_count;
+    std::vector<uint32_t>size_table;
+public:
+    StszBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~StszBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class StcoBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t offset_count;
+    std::vector<uint32_t>offsets;
+public:
+    StcoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~StcoBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class Co64Box : public F4vBox
+{
+public:
+
+public:
+    Co64Box(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~Co64Box();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class StssBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint32_t sync_count;
+    std::vector<uint32_t>sync_table;
+public:
+    StssBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~StssBox();
+public:
+    virtual int initialize(FILE * fp);
+    virtual void display();
+};
+
+class SdtpBox : public F4vBox
+{
+public:
+
+public:
+    SdtpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~SdtpBox();
+public:
+    virtual int initialize(FILE * fp);
     virtual void display();
 };
 
