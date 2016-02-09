@@ -648,45 +648,6 @@ public:
 };
 
 
-class MvhdBox;
-class TrakBox;
-class MvexBox;
-class AuthBox;
-class TitlBox;
-class DscpBox;
-class CprtBox;
-class UdtaBox;
-class TkhdBox;
-class EdtsBox;
-class MdiaBox;
-class ElstBox;
-class MdhdBox;
-class HdlrBox;
-class MinfBox;
-class VmhdBox;
-class SmhdBox;
-class HmhdBox;
-class NmhdBox;
-class DinfBox;
-class StblBox;
-class DrefBox;
-class UrlBox;
-class StsdBox;
-class SttsBox;
-class CttsBox;
-class StscBox;
-class StszBox;
-class StcoBox;
-class Co64Box;
-class StssBox;
-class SdtpBox;
-class MehdBox;
-class TrexBox;
-class MfhdBox;
-class TrafBox;
-class TfhdBox;
-class TrunBox;
-
 
 class F4vSample
 {
