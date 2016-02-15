@@ -12,10 +12,9 @@
 
 using namespace std;
 
-#define BOX_HEADER_SIZE     8
+#define BOX_HEADER_SIZE       8
 #define BOX_EXTENDED_SIZE   8
-#define OFFSET_32                  4
-#define OFFSET_64                   8
+#define DREF_OFFSET               8
 
 enum BOXTYPE {
     ftyp = 0x66747970, pdin = 0x7064696E, afra = 0x61667261, abst = 0x61627374, asrt = 0x61737274, afrt = 0x61667274,
@@ -218,7 +217,7 @@ int F4vFileParser::read(uint64_t start, uint64_t end)
                 fb = new DinfBox(sp, size, type, header_size, ep, header_size, true);
                 break;
             case dref:
-                fb = new DrefBox(sp, size, type, header_size, ep, header_size + OFFSET_64, true);
+                fb = new DrefBox(sp, size, type, header_size, ep, header_size + DREF_OFFSET, true);
                 break;
             case url:
                 fb = new UrlBox(sp, size, type, header_size, ep, 0, false);
