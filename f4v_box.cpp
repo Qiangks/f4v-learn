@@ -1,0 +1,988 @@
+//
+// Created by chnvideo on 2016/2/3.
+//
+
+#include "f4v_box.hpp"
+#include "f4v_log.hpp"
+#include "f4v_utility.hpp"
+
+F4vBoxAtom::F4vBoxAtom(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+{
+    start = st;
+    size = sz;
+    type = ty;
+    header_size = hs;
+    end = ed;
+    is_container = ic;
+    offset = off;
+}
+
+F4vBoxAtom::~F4vBoxAtom()
+{
+
+}
+
+FtypBox::FtypBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+FtypBox::~FtypBox()
+{
+}
+
+void FtypBox::display()
+{
+    f4v_trace("Box Type: %s, Box Size: %ld, Box Major Brand: %s, Box Minor Version: %ld,
+                    Box compatible brands: %s\n", f4v_int2str(type).c_str(), size, f4v_int2str(major_brand).c_str(), minor_version,
+                    compatible_brands.c_str());
+}
+
+PdinBox::PdinBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+PdinBox::~PdinBox()
+{
+}
+
+void PdinBox::display()
+{
+}
+
+AfraBox::AfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AfraBox::~AfraBox()
+{
+}
+
+void AfraBox::display()
+{
+}
+
+AbstBox::AbstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AbstBox::~AbstBox()
+{
+}
+
+void AbstBox::display()
+{
+}
+
+AsrtBox::AsrtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AsrtBox::~AsrtBox()
+{
+}
+
+void AsrtBox::display()
+{
+}
+
+AfrtBox::AfrtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AfrtBox::~AfrtBox()
+{
+}
+
+void AfrtBox::display()
+{
+}
+
+MoovBox::MoovBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MoovBox::~MoovBox()
+{
+}
+
+void MoovBox::display()
+{
+}
+
+MvhdBox::MvhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MvhdBox::~MvhdBox()
+{
+}
+
+void MvhdBox::display()
+{
+}
+
+TrakBox::TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TrakBox::~TrakBox()
+{
+}
+
+void TrakBox::display()
+{
+}
+
+TkhdBox::TkhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TkhdBox::~TkhdBox()
+{
+}
+
+void TkhdBox::display()
+{
+}
+
+EdtsBox::EdtsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+EdtsBox::~EdtsBox()
+{
+}
+
+void EdtsBox::display()
+{
+}
+
+ElstBox::ElstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+ElstBox::~ElstBox()
+{
+}
+
+void ElstBox::display()
+{
+}
+
+MdiaBox::MdiaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MdiaBox::~MdiaBox()
+{
+}
+
+void MdiaBox::display()
+{
+}
+
+MdhdBox::MdhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MdhdBox::~MdhdBox()
+{
+}
+
+void MdhdBox::display()
+{
+}
+
+HdlrBox::HdlrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+HdlrBox::~HdlrBox()
+{
+}
+
+void HdlrBox::display()
+{
+}
+
+MinfBox::MinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MinfBox::~MinfBox()
+{
+}
+
+void MinfBox::display()
+{
+}
+
+VmhdBox::VmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+VmhdBox::~VmhdBox()
+{
+}
+
+void VmhdBox::display()
+{
+}
+
+SmhdBox::SmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+SmhdBox::~SmhdBox()
+{
+}
+
+void SmhdBox::display()
+{
+}
+
+HmhdBox::HmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+HmhdBox::~HmhdBox()
+{
+}
+
+void HmhdBox::display()
+{
+}
+
+NmhdBox::NmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+NmhdBox::~NmhdBox()
+{
+}
+
+void NmhdBox::display()
+{
+}
+
+DinfBox::DinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+DinfBox::~DinfBox()
+{
+}
+
+void DinfBox::display()
+{
+}
+
+DrefBox::DrefBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+DrefBox::~DrefBox()
+{
+}
+
+void DrefBox::display()
+{
+}
+
+UrlBox::UrlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+UrlBox::~UrlBox()
+{
+}
+
+void UrlBox::display()
+{
+}
+
+StblBox::StblBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+StblBox::~StblBox()
+{
+}
+
+void StblBox::display()
+{
+}
+
+StsdBox::StsdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+StsdBox::~StsdBox()
+{
+}
+
+void StsdBox::display()
+{
+}
+
+SttsBox::SttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+SttsBox::~SttsBox()
+{
+}
+
+void SttsBox::display()
+{
+}
+
+CttsBox::CttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+CttsBox::~CttsBox()
+{
+}
+
+void CttsBox::display()
+{
+}
+
+StscBox::StscBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+StscBox::~StscBox()
+{
+}
+
+void StscBox::display()
+{
+}
+
+StszBox::StszBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+StszBox::~StszBox()
+{
+}
+
+void StszBox::display()
+{
+}
+
+StcoBox::StcoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+StcoBox::~StcoBox()
+{
+}
+
+void StcoBox::display()
+{
+}
+
+Co64Box::Co64Box(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+Co64Box::~Co64Box()
+{
+}
+
+void Co64Box::display()
+{
+}
+
+StssBox::StssBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+StssBox::~StssBox()
+{
+}
+
+void StssBox::display()
+{
+}
+
+SdtpBox::SdtpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+SdtpBox::~SdtpBox()
+{
+}
+
+void SdtpBox::display()
+{
+}
+
+MvexBox::MvexBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MvexBox::~MvexBox()
+{
+}
+
+void MvexBox::display()
+{
+}
+
+MehdBox::MehdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MehdBox::~MehdBox()
+{
+}
+
+void MehdBox::display()
+{
+}
+
+TrexBox::TrexBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TrexBox::~TrexBox()
+{
+}
+
+void TrexBox::display()
+{
+}
+
+AuthBox::AuthBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AuthBox::~AuthBox()
+{
+}
+
+void AuthBox::display()
+{
+}
+
+TitlBox::TitlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TitlBox::~TitlBox()
+{
+}
+
+void TitlBox::display()
+{
+}
+
+DscpBox::DscpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+DscpBox::~DscpBox()
+{
+}
+
+void DscpBox::display()
+{
+}
+
+CprtBox::CprtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+CprtBox::~CprtBox()
+{
+}
+
+void CprtBox::display()
+{
+}
+
+UdtaBox::UdtaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+UdtaBox::~UdtaBox()
+{
+}
+
+void UdtaBox::display()
+{
+}
+
+UuidBox::UuidBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+UuidBox::~UuidBox()
+{
+}
+
+void UuidBox::display()
+{
+}
+
+MoofBox::MoofBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MoofBox::~MoofBox()
+{
+}
+
+void MoofBox::display()
+{
+}
+
+MfhdBox::MfhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MfhdBox::~MfhdBox()
+{
+}
+
+void MfhdBox::display()
+{
+}
+
+TrafBox::TrafBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TrafBox::~TrafBox()
+{
+}
+
+void TrafBox::display()
+{
+}
+
+TfhdBox::TfhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TfhdBox::~TfhdBox()
+{
+}
+
+void TfhdBox::display()
+{
+}
+
+TrunBox::TrunBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TrunBox::~TrunBox()
+{
+}
+
+void TrunBox::display()
+{
+}
+
+MdatBox::MdatBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MdatBox::~MdatBox()
+{
+}
+
+void MdatBox::display()
+{
+}
+
+MetaBox::MetaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MetaBox::~MetaBox()
+{
+}
+
+void MetaBox::display()
+{
+}
+
+IlstBox::IlstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+IlstBox::~IlstBox()
+{
+}
+
+void IlstBox::display()
+{
+}
+
+FreeBox::FreeBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+FreeBox::~FreeBox()
+{
+}
+
+void FreeBox::display()
+{
+}
+
+SkipBox::SkipBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+SkipBox::~SkipBox()
+{
+}
+
+void SkipBox::display()
+{
+}
+
+MfraBox::MfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MfraBox::~MfraBox()
+{
+}
+
+void MfraBox::display()
+{
+}
+
+TfraBox::TfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+TfraBox::~TfraBox()
+{
+}
+
+void TfraBox::display()
+{
+}
+
+MfroBox::MfroBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+MfroBox::~MfroBox()
+{
+}
+
+void MfroBox::display()
+{
+}
+
+RtmpBox::RtmpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+RtmpBox::~RtmpBox()
+{
+}
+
+void RtmpBox::display()
+{
+}
+
+AmhpBox::AmhpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AmhpBox::~AmhpBox()
+{
+}
+
+void AmhpBox::display()
+{
+}
+
+AmtoBox::AmtoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AmtoBox::~AmtoBox()
+{
+}
+
+void AmtoBox::display()
+{
+}
+
+EncvBox::EncvBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+EncvBox::~EncvBox()
+{
+}
+
+void EncvBox::display()
+{
+}
+
+EncaBox::EncaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+EncaBox::~EncaBox()
+{
+}
+
+void EncaBox::display()
+{
+}
+
+EncrBox::EncrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+EncrBox::~EncrBox()
+{
+}
+
+void EncrBox::display()
+{
+}
+
+SinfBox::SinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+SinfBox::~SinfBox()
+{
+}
+
+void SinfBox::display()
+{
+}
+
+FrmaBox::FrmaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+FrmaBox::~FrmaBox()
+{
+}
+
+void FrmaBox::display()
+{
+}
+
+SchmBox::SchmBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+SchmBox::~SchmBox()
+{
+}
+
+void SchmBox::display()
+{
+}
+
+SchiBox::SchiBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+SchiBox::~SchiBox()
+{
+}
+
+void SchiBox::display()
+{
+}
+
+AdkmBox::AdkmBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AdkmBox::~AdkmBox()
+{
+}
+
+void AdkmBox::display()
+{
+}
+
+AhdrBox::AhdrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AhdrBox::~AhdrBox()
+{
+}
+
+void AhdrBox::display()
+{
+}
+
+AprmBox::AprmBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AprmBox::~AprmBox()
+{
+}
+
+void AprmBox::display()
+{
+}
+
+AeibBox::AeibBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AeibBox::~AeibBox()
+{
+}
+
+void AeibBox::display()
+{
+}
+
+AkeyBox::AkeyBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AkeyBox::~AkeyBox()
+{
+}
+
+void AkeyBox::display()
+{
+}
+
+ApsBox::ApsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+ApsBox::~ApsBox()
+{
+}
+
+void ApsBox::display()
+{
+}
+
+FlxsBox::FlxsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+FlxsBox::~FlxsBox()
+{
+}
+
+void FlxsBox::display()
+{
+}
+
+AsigBox::AsigBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AsigBox::~AsigBox()
+{
+}
+
+void AsigBox::display()
+{
+}
+
+AdafBox::AdafBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
+: F4vBoxAtom(st, sz, ty, hs, ed, off, ic)
+{
+}
+
+AdafBox::~AdafBox()
+{
+}
+
+void AdafBox::display()
+{
+}
