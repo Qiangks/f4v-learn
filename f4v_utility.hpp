@@ -10,6 +10,8 @@
 
 int64_t f4v_generate_type(char a, char b, char c, char d);
 
+uint32_t f4v_char_join(char* buf, int num);
+
 std::string f4v_int2str(int32_t value);
 
 void parse_ftyp();

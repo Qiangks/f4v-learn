@@ -31,7 +31,7 @@ class FtypBox : public F4vBoxAtom
 {
 public:
     int32_t major_brand;
-    int64_t minor_version;
+    int32_t minor_version;
     std::string compatible_brands;
 public:
     FtypBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
@@ -109,7 +109,12 @@ public:
 class MvhdBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint64_t creation_time;
+    uint64_t modification_time;
+    uint32_t timescale;
+    uint64_t duration;
 public:
     MvhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MvhdBox();
@@ -120,7 +125,6 @@ public:
 class TrakBox : public F4vBoxAtom
 {
 public:
-
 public:
     TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~TrakBox();
@@ -131,6 +135,11 @@ public:
 class TkhdBox : public F4vBoxAtom
 {
 public:
+    uint32_t version;
+    uint64_t creation_time;
+    uint64_t modification_time;
+    uint32_t trak_id;
+    uint64_t duration;
 
 public:
     TkhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
@@ -175,7 +184,11 @@ public:
 class MdhdBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint64_t creation_time;
+    uint64_t modification_time;
+    uint32_t timescale;
+    uint64_t duration;
 public:
     MdhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MdhdBox();
@@ -186,7 +199,8 @@ public:
 class HdlrBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t handler_type;
 public:
     HdlrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~HdlrBox();
@@ -208,7 +222,10 @@ public:
 class VmhdBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t graphic_mode;
+    uint32_t op_color[3];
 public:
     VmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~VmhdBox();
@@ -219,7 +236,9 @@ public:
 class SmhdBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    float balance;
 public:
     SmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~SmhdBox();
@@ -263,7 +282,9 @@ public:
 class DrefBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t entry_count;
 public:
     DrefBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~DrefBox();
@@ -274,7 +295,8 @@ public:
 class UrlBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
 public:
     UrlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~UrlBox();
@@ -296,7 +318,9 @@ public:
 class StsdBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
 public:
     StsdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StsdBox();
@@ -307,7 +331,9 @@ public:
 class SttsBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
 public:
     SttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~SttsBox();
@@ -318,7 +344,9 @@ public:
 class CttsBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
 public:
     CttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~CttsBox();
@@ -329,7 +357,9 @@ public:
 class StscBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t count;
 public:
     StscBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StscBox();
@@ -340,7 +370,10 @@ public:
 class StszBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t constant_size;
+    uint32_t size_count;
 public:
     StszBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StszBox();
@@ -351,7 +384,9 @@ public:
 class StcoBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t offset_count;
 public:
     StcoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StcoBox();
@@ -373,7 +408,9 @@ public:
 class StssBox : public F4vBoxAtom
 {
 public:
-
+    uint32_t version;
+    uint32_t flags;
+    uint32_t sync_count;
 public:
     StssBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StssBox();
@@ -516,7 +553,6 @@ public:
 class TrafBox : public F4vBoxAtom
 {
 public:
-
 public:
     TrafBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~TrafBox();

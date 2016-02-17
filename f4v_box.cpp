@@ -33,8 +33,8 @@ FtypBox::~FtypBox()
 
 void FtypBox::display()
 {
-    f4v_trace("Box Type: %s, Box Size: %ld, Box Major Brand: %s, Box Minor Version: %ld,
-                    Box compatible brands: %s\n", f4v_int2str(type).c_str(), size, f4v_int2str(major_brand).c_str(), minor_version,
+    f4v_trace("Box Type: %s, Box Size: %ld, Box Major Brand: %s, Box Minor Version: %ld,"
+                    "Box compatible brands: %s", f4v_int2str(type).c_str(), size, f4v_int2str(major_brand).c_str(), minor_version,
                     compatible_brands.c_str());
 }
 
@@ -114,6 +114,7 @@ MoovBox::~MoovBox()
 
 void MoovBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
 MvhdBox::MvhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -127,6 +128,8 @@ MvhdBox::~MvhdBox()
 
 void MvhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, TimeScale: %d, Duration: %ld",
+        f4v_int2str(type).c_str(), size, creation_time, modification_time, timescale, duration);
 }
 
 TrakBox::TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -153,6 +156,9 @@ TkhdBox::~TkhdBox()
 
 void TkhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, Duration: %ld",
+        "TrakID: %d", f4v_int2str(type).c_str(), size, creation_time, modification_time,
+        duration, trak_id);
 }
 
 EdtsBox::EdtsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -205,6 +211,9 @@ MdhdBox::~MdhdBox()
 
 void MdhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, Duration: %ld",
+        "timescale: %d", f4v_int2str(type).c_str(), size, creation_time, modification_time,
+        duration, timescale);
 }
 
 HdlrBox::HdlrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -218,6 +227,8 @@ HdlrBox::~HdlrBox()
 
 void HdlrBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, HandlerType: %s", f4v_int2str(type).c_str(), size, version,
+        f4v_int2str(handler_type).c_str());
 }
 
 MinfBox::MinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -231,6 +242,7 @@ MinfBox::~MinfBox()
 
 void MinfBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
 VmhdBox::VmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -244,6 +256,8 @@ VmhdBox::~VmhdBox()
 
 void VmhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, GraphicMode: %d, OpColor(%d, %d, %d)",
+        f4v_int2str(type).c_str(), size, version, flags, graphic_mode, op_color[0], op_color[1], op_color[3]);
 }
 
 SmhdBox::SmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -257,6 +271,8 @@ SmhdBox::~SmhdBox()
 
 void SmhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, Balance: %0.1f",
+        f4v_int2str(type).c_str(), size, version, flags, balance);
 }
 
 HmhdBox::HmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -309,6 +325,8 @@ DrefBox::~DrefBox()
 
 void DrefBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, EntryCount: %d",
+        f4v_int2str(type).c_str(), size, version, flags, entry_count);
 }
 
 UrlBox::UrlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -322,6 +340,8 @@ UrlBox::~UrlBox()
 
 void UrlBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d",
+        f4v_int2str(type).c_str(), size, version, flags);
 }
 
 StblBox::StblBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -335,6 +355,7 @@ StblBox::~StblBox()
 
 void StblBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
 StsdBox::StsdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -348,6 +369,8 @@ StsdBox::~StsdBox()
 
 void StsdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, Count: %d",
+        f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
 SttsBox::SttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -361,6 +384,8 @@ SttsBox::~SttsBox()
 
 void SttsBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, Count: %d",
+        f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
 CttsBox::CttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -374,6 +399,8 @@ CttsBox::~CttsBox()
 
 void CttsBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, Count: %d",
+        f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
 StscBox::StscBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -387,6 +414,8 @@ StscBox::~StscBox()
 
 void StscBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, Count: %d",
+        f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
 StszBox::StszBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -400,6 +429,8 @@ StszBox::~StszBox()
 
 void StszBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, ConstantSize: %d, SizeCount: %d",
+        f4v_int2str(type).c_str(), size, version, flags, constant_size, size_count);
 }
 
 StcoBox::StcoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -413,6 +444,8 @@ StcoBox::~StcoBox()
 
 void StcoBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, OffsetCount: %d",
+        f4v_int2str(type).c_str(), size, version, flags, offset_count);
 }
 
 Co64Box::Co64Box(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -439,6 +472,8 @@ StssBox::~StssBox()
 
 void StssBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d, Flags: %d, SyncCount: %d",
+        f4v_int2str(type).c_str(), size, version, flags, sync_count);
 }
 
 SdtpBox::SdtpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -647,6 +682,7 @@ MdatBox::~MdatBox()
 
 void MdatBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d", f4v_int2str(type).c_str());
 }
 
 MetaBox::MetaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -686,6 +722,7 @@ FreeBox::~FreeBox()
 
 void FreeBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
 SkipBox::SkipBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)

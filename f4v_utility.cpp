@@ -13,6 +13,16 @@ int64_t  f4v_generate_type(char a, char b, char c, char d)
     return a << 24 | b << 16 | c << 8 | d;
 }
 
+uint32_t f4v_char_join(char* buf, int num)
+{
+    uint32_t temp = 0;
+    for(int i = 0; i < num; i++) {
+        temp = temp | buf[i] << (num - i - 1) * 8;
+    }
+
+    return temp;
+}
+
 string f4v_int2str(int32_t value)
 {
     char *pp = (char*)(&value);

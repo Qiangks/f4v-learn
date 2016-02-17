@@ -412,7 +412,64 @@ int F4vFileParser::parse()
             case moov:
                 parse_moov(&fm);
                 break;
+            case mvhd:
+                parse_mvhd(&fm);
+                break;
+            case trak:
+                parse_trak(&fm);
+                break;
+            case tkhd:
+                parse_tkhd(&fm);
+            case mdia:
+                parse_mdia(&fm);
+                break;
+            case mdhd:
+                parse_mdhd(&fm);
+                break;
+            case hdlr:
+                parse_hdlr(&fm);
+                break;
+            case minf:
+                parse_minf(&fm);
+                break;
+            case vmhd:
+                parse_vmhd(&fm);
+                break;
+            case dinf:
+                parse_dinf(&fm);
+                break;
+            case dref:
+                parse_dref(&fm);
+                break;
             case url:
+                parse_url(&fm);
+                break;
+            case stbl:
+                parse_stbl(&fm);
+                break;
+            case stsd:
+                parse_stsd(&fm);
+                break;
+            case stts:
+                parse_stts(&fm);
+                break;
+            case ctts:
+                parse_ctts(&fm);
+                break;
+            case stsc:
+                parse_stsc(&fm);
+                break;
+            case stsz:
+                parse_stsz(&fm);
+                break;
+            case stco:
+                parse_stco(&fm);
+                break;
+            case stss:
+                parse_stss(&fm);
+                break;
+            case smhd:
+                parse_smhd(&fm);
                 break;
             default:
                 break;
@@ -428,7 +485,7 @@ void F4vFileParser::show_box()
     vector<F4vBoxAtom*>::iterator it;
     for(it = f4v_atomes.begin(); it != f4v_atomes.end(); it++) {
         F4vBoxAtom* fm = *it;
-        f4v_trace("The box type is: %s", f4v_int2str(fm->type).c_str());
+        fm->display();
     }
 }
 
@@ -444,13 +501,15 @@ int64_t F4vFileParser::get_filesize()
 void F4vFileParser::parse_ftyp(F4vBoxAtom** ppfb)
 {
     F4vBoxAtom* pfb = *ppfb;
-    int size = pfb->end - pfb->size - pfb->header_size;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     char buf[size];
     ::fread(buf, 1, size, fp);
     
     FtypBox* ft = dynamic_cast<FtypBox*>(pfb);
-    ft->major_brand = f4v_generate_type(buf[0], buf[1], buf[2], buf[3]);
-    ft->minor_version = f4v_generate_type(buf[4], buf[5], buf[6], buf[7]);
+    ft->major_brand = f4v_char_join(buf, 4);
+    ft->minor_version = f4v_char_join(&buf[4], 4);
+
     stringstream ss;
     for(int i = 8; i < size; i++) {
         ss << buf[i];
@@ -459,5 +518,278 @@ void F4vFileParser::parse_ftyp(F4vBoxAtom** ppfb)
 }
 
 void F4vFileParser::parse_moov(F4vBoxAtom** ppfb)
+{
+}
+
+void F4vFileParser::parse_mvhd(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    MvhdBox* mb = dynamic_cast<MvhdBox*>(pfb);
+    mb->version = f4v_char_join(buf, 1);
+    mb->flags = f4v_char_join(&buf[1], 3);
+    if (mb->version == 0) {
+        mb->creation_time = f4v_char_join(&buf[4], 4);
+        mb->modification_time = f4v_char_join(&buf[8], 4);
+        mb->timescale = f4v_char_join(&buf[12], 4);
+        mb->duration = f4v_char_join(&buf[16], 4);
+    } else {
+        mb->creation_time = f4v_char_join(&buf[4], 8);
+        mb->modification_time = f4v_char_join(&buf[12], 8);
+        mb->timescale = f4v_char_join(&buf[20], 4);
+        mb->duration = f4v_char_join(&buf[24], 8);
+    }
+}
+
+void F4vFileParser::parse_trak(F4vBoxAtom** ppfb)
+{
+}
+
+void F4vFileParser::parse_tkhd(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    TkhdBox* tb = dynamic_cast<TkhdBox*>(pfb);
+    tb->version = f4v_char_join(buf, 1);
+    if (tb->version == 0) {
+        tb->creation_time = f4v_char_join(&buf[4], 4);
+        tb->modification_time = f4v_char_join(&buf[8], 4);
+        tb->trak_id= f4v_char_join(&buf[12], 4);
+        tb->duration = f4v_char_join(&buf[20], 4);
+    } else {
+        tb->creation_time = f4v_char_join(&buf[4], 8);
+        tb->modification_time = f4v_char_join(&buf[12], 8);
+        tb->trak_id = f4v_char_join(&buf[20], 4);
+        tb->duration = f4v_char_join(&buf[28], 8);
+    }
+    
+}
+
+void F4vFileParser::parse_mdia(F4vBoxAtom** ppfb)
+{
+}
+
+void F4vFileParser::parse_mdhd(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    MdhdBox* mb = dynamic_cast<MdhdBox*>(pfb);
+    mb->version = f4v_char_join(buf, 1);
+    if (mb->version == 0) {
+        mb->creation_time = f4v_char_join(&buf[4], 4);
+        mb->modification_time = f4v_char_join(&buf[8], 4);
+        mb->timescale = f4v_char_join(&buf[12], 4);
+        mb->duration = f4v_char_join(&buf[16], 4);
+    } else {
+        mb->creation_time = f4v_char_join(&buf[4], 8);
+        mb->modification_time = f4v_char_join(&buf[12], 8);
+        mb->timescale = f4v_char_join(&buf[20], 4);
+        mb->duration = f4v_char_join(&buf[24], 8);
+    }
+}
+
+void F4vFileParser::parse_hdlr(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    HdlrBox* hb = dynamic_cast<HdlrBox*>(pfb);
+    hb->version  = f4v_char_join(buf, 1);
+    hb->handler_type = f4v_char_join(&buf[8], 4);
+}
+
+void F4vFileParser::parse_minf(F4vBoxAtom** ppfb)
+{
+}
+
+void F4vFileParser::parse_vmhd(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    VmhdBox* vb = dynamic_cast<VmhdBox*>(pfb);
+    vb->version = f4v_char_join(buf, 1);
+    vb->flags = f4v_char_join(&buf[1], 3);
+    vb->graphic_mode = f4v_char_join(&buf[4], 2);
+    vb->op_color[0] = f4v_char_join(&buf[6], 2);
+    vb->op_color[1] = f4v_char_join(&buf[8], 2);
+    vb->op_color[2] = f4v_char_join(&buf[10], 2);
+}
+
+void F4vFileParser::parse_dinf(F4vBoxAtom** ppfb)
+{
+}
+
+void F4vFileParser::parse_dref(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    DrefBox* db = dynamic_cast<DrefBox*>(pfb);
+    db->version = f4v_char_join(buf, 1);
+    db->flags = f4v_char_join(&buf[1], 3);
+    db->entry_count = f4v_char_join(&buf[4], 4);
+}
+
+void F4vFileParser::parse_url(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    UrlBox* ub = dynamic_cast<UrlBox*>(pfb);
+    ub->version = f4v_char_join(buf, 1);
+    ub->flags = f4v_char_join(&buf[1], 3);
+}
+
+void F4vFileParser::parse_stbl(F4vBoxAtom** ppfb)
+{
+}
+
+void F4vFileParser::parse_stsd(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    StsdBox* sb = dynamic_cast<StsdBox*>(pfb);
+    sb->version = f4v_char_join(buf, 1);
+    sb->flags = f4v_char_join(&buf[1], 3);
+    sb->count = f4v_char_join(&buf[4], 4);
+}
+
+void F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    SttsBox* sb = dynamic_cast<SttsBox*>(pfb);
+    sb->version = f4v_char_join(buf, 1);
+    sb->flags = f4v_char_join(&buf[1], 3);
+    sb->count = f4v_char_join(&buf[4], 4);
+}
+
+void F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    CttsBox* cb = dynamic_cast<CttsBox*>(pfb);
+    cb->version = f4v_char_join(buf, 1);
+    cb->flags = f4v_char_join(&buf[1], 3);
+    cb->count = f4v_char_join(&buf[4], 4);
+}
+
+void F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    StscBox* sb = dynamic_cast<StscBox*>(pfb);
+    sb->version = f4v_char_join(buf, 1);
+    sb->flags = f4v_char_join(&buf[1], 3);
+    sb->count = f4v_char_join(&buf[4], 4);
+}
+
+void F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    StszBox* sb = dynamic_cast<StszBox*>(pfb);
+    sb->version = f4v_char_join(buf, 1);
+    sb->flags = f4v_char_join(&buf[1], 3);
+    sb->constant_size = f4v_char_join(&buf[4], 4);
+    sb->size_count = f4v_char_join(&buf[8], 4);
+}
+
+void F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    StcoBox* sb = dynamic_cast<StcoBox*>(pfb);
+    sb->version = f4v_char_join(buf, 1);
+    sb->flags = f4v_char_join(&buf[1], 3);
+    sb->offset_count = f4v_char_join(&buf[4], 4);
+}
+
+void F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    StssBox* sb = dynamic_cast<StssBox*>(pfb);
+    sb->version = f4v_char_join(buf, 1);
+    sb->flags = f4v_char_join(&buf[1], 3);
+    sb->sync_count = f4v_char_join(&buf[4], 4);
+}
+
+void F4vFileParser::parse_smhd(F4vBoxAtom** ppfb)
+{
+    F4vBoxAtom* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    uint32_t version;
+    uint32_t flags;
+    float balance;
+    
+    SmhdBox* sb = dynamic_cast<SmhdBox*>(pfb);
+    sb->version = f4v_char_join(buf, 1);
+    sb->flags = f4v_char_join(&buf[1], 3);
+    sb->balance = (float)f4v_char_join(&buf[4], 1) + (float)f4v_char_join(&buf[5], 1)/10;
+}
+
+void F4vFileParser::parse_free(F4vBoxAtom** ppfb)
+{
+}
+
+void F4vFileParser::parse_mdat(F4vBoxAtom** ppfb)
 {
 }
