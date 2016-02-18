@@ -115,6 +115,7 @@ public:
     uint64_t modification_time;
     uint32_t timescale;
     uint64_t duration;
+    float rate;
 public:
     MvhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MvhdBox();

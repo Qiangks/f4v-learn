@@ -33,7 +33,7 @@ FtypBox::~FtypBox()
 
 void FtypBox::display()
 {
-    f4v_trace("Box Type: %s, Box Size: %ld, Box Major Brand: %s, Box Minor Version: %ld,"
+    f4v_trace("Box Type: %s, Box Size: %ld, Box Major Brand: %s, Box Minor Version: %ld, "
                     "Box compatible brands: %s", f4v_int2str(type).c_str(), size, f4v_int2str(major_brand).c_str(), minor_version,
                     compatible_brands.c_str());
 }
@@ -128,8 +128,8 @@ MvhdBox::~MvhdBox()
 
 void MvhdBox::display()
 {
-    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, TimeScale: %d, Duration: %ld",
-        f4v_int2str(type).c_str(), size, creation_time, modification_time, timescale, duration);
+    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, TimeScale: %d, Duration: %ld, "
+        "Rate: %0.1f", f4v_int2str(type).c_str(), size, creation_time, modification_time, timescale, duration, rate);
 }
 
 TrakBox::TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -143,6 +143,7 @@ TrakBox::~TrakBox()
 
 void TrakBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
 TkhdBox::TkhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
@@ -156,7 +157,7 @@ TkhdBox::~TkhdBox()
 
 void TkhdBox::display()
 {
-    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, Duration: %ld",
+    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, Duration: %ld, "
         "TrakID: %d", f4v_int2str(type).c_str(), size, creation_time, modification_time,
         duration, trak_id);
 }
@@ -211,7 +212,7 @@ MdhdBox::~MdhdBox()
 
 void MdhdBox::display()
 {
-    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, Duration: %ld",
+    f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, Duration: %ld, "
         "timescale: %d", f4v_int2str(type).c_str(), size, creation_time, modification_time,
         duration, timescale);
 }

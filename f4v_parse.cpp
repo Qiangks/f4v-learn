@@ -420,6 +420,7 @@ int F4vFileParser::parse()
                 break;
             case tkhd:
                 parse_tkhd(&fm);
+                break;
             case mdia:
                 parse_mdia(&fm);
                 break;
@@ -503,7 +504,7 @@ void F4vFileParser::parse_ftyp(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
     
     FtypBox* ft = dynamic_cast<FtypBox*>(pfb);
@@ -526,7 +527,7 @@ void F4vFileParser::parse_mvhd(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     MvhdBox* mb = dynamic_cast<MvhdBox*>(pfb);
@@ -537,11 +538,13 @@ void F4vFileParser::parse_mvhd(F4vBoxAtom** ppfb)
         mb->modification_time = f4v_char_join(&buf[8], 4);
         mb->timescale = f4v_char_join(&buf[12], 4);
         mb->duration = f4v_char_join(&buf[16], 4);
+        mb->rate = f4v_char_join(&buf[20], 2) + (float)f4v_char_join(&buf[22], 2)/10;
     } else {
         mb->creation_time = f4v_char_join(&buf[4], 8);
         mb->modification_time = f4v_char_join(&buf[12], 8);
         mb->timescale = f4v_char_join(&buf[20], 4);
         mb->duration = f4v_char_join(&buf[24], 8);
+        mb->rate = f4v_char_join(&buf[32], 2) + (float)f4v_char_join(&buf[34], 2)/10;
     }
 }
 
@@ -554,7 +557,7 @@ void F4vFileParser::parse_tkhd(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     TkhdBox* tb = dynamic_cast<TkhdBox*>(pfb);
@@ -582,7 +585,7 @@ void F4vFileParser::parse_mdhd(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     MdhdBox* mb = dynamic_cast<MdhdBox*>(pfb);
@@ -605,7 +608,7 @@ void F4vFileParser::parse_hdlr(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     HdlrBox* hb = dynamic_cast<HdlrBox*>(pfb);
@@ -622,7 +625,7 @@ void F4vFileParser::parse_vmhd(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     VmhdBox* vb = dynamic_cast<VmhdBox*>(pfb);
@@ -643,7 +646,7 @@ void F4vFileParser::parse_dref(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     DrefBox* db = dynamic_cast<DrefBox*>(pfb);
@@ -657,7 +660,7 @@ void F4vFileParser::parse_url(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     UrlBox* ub = dynamic_cast<UrlBox*>(pfb);
@@ -674,7 +677,7 @@ void F4vFileParser::parse_stsd(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     StsdBox* sb = dynamic_cast<StsdBox*>(pfb);
@@ -688,7 +691,7 @@ void F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     SttsBox* sb = dynamic_cast<SttsBox*>(pfb);
@@ -702,7 +705,7 @@ void F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     CttsBox* cb = dynamic_cast<CttsBox*>(pfb);
@@ -716,7 +719,7 @@ void F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     StscBox* sb = dynamic_cast<StscBox*>(pfb);
@@ -730,7 +733,7 @@ void F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     StszBox* sb = dynamic_cast<StszBox*>(pfb);
@@ -745,7 +748,7 @@ void F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     StcoBox* sb = dynamic_cast<StcoBox*>(pfb);
@@ -759,7 +762,7 @@ void F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     StssBox* sb = dynamic_cast<StssBox*>(pfb);
@@ -773,7 +776,7 @@ void F4vFileParser::parse_smhd(F4vBoxAtom** ppfb)
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    char buf[size];
+    unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
     uint32_t version;
