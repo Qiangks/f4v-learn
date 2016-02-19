@@ -680,10 +680,15 @@ void F4vFileParser::parse_stsd(F4vBoxAtom** ppfb)
     unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
+    // pfb buf 
     StsdBox* sb = dynamic_cast<StsdBox*>(pfb);
     sb->version = f4v_char_join(buf, 1);
     sb->flags = f4v_char_join(&buf[1], 3);
     sb->count = f4v_char_join(&buf[4], 4);
+    for (int i = 0; i < sb->count; i++) {
+        uint32_t size = f4v_char_join(&buf[8], 4);
+        int32_t type = f4v_char_join(&buf[12], 4);
+    }
 }
 
 void F4vFileParser::parse_stts(F4vBoxAtom** ppfb)

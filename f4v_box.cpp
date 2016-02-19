@@ -683,7 +683,7 @@ MdatBox::~MdatBox()
 
 void MdatBox::display()
 {
-    f4v_trace("Box Type: %s, Box Size: %ld, Version: %d", f4v_int2str(type).c_str());
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
 MetaBox::MetaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
