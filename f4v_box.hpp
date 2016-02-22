@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 class F4vBoxAtom
 {
@@ -329,12 +330,18 @@ public:
     virtual void display();
 };
 
+typedef struct _stts_record{
+    uint32_t sample_count;
+    uint32_t sample_delta;
+}SttsRecord;
+
 class SttsBox : public F4vBoxAtom
 {
 public:
     uint32_t version;
     uint32_t flags;
     uint32_t count;
+    std::vector<SttsRecord> stts_records;
 public:
     SttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~SttsBox();
@@ -342,12 +349,18 @@ public:
     virtual void display();
 };
 
+typedef struct _ctts_record{
+    uint32_t sample_count;
+    uint32_t sample_offset;
+}CttsRecord;
+
 class CttsBox : public F4vBoxAtom
 {
 public:
     uint32_t version;
     uint32_t flags;
     uint32_t count;
+    std::vector<CttsRecord>ctts_records;
 public:
     CttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~CttsBox();
@@ -355,12 +368,21 @@ public:
     virtual void display();
 };
 
+typedef struct _stsc_record{
+    uint32_t first_chunk;
+    // samples per chunk
+    uint32_t spc;
+    // sample description index
+    uint32_t sdi;
+} StscRecord;
+
 class StscBox : public F4vBoxAtom
 {
 public:
     uint32_t version;
     uint32_t flags;
     uint32_t count;
+    std::vector<StscRecord> stsc_records;
 public:
     StscBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StscBox();
@@ -375,6 +397,7 @@ public:
     uint32_t flags;
     uint32_t constant_size;
     uint32_t size_count;
+    std::vector<uint32_t>size_table;
 public:
     StszBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StszBox();
@@ -388,6 +411,7 @@ public:
     uint32_t version;
     uint32_t flags;
     uint32_t offset_count;
+    std::vector<uint32_t>offsets;
 public:
     StcoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StcoBox();
@@ -412,6 +436,7 @@ public:
     uint32_t version;
     uint32_t flags;
     uint32_t sync_count;
+    std::vector<uint32_t>sync_table;
 public:
     StssBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StssBox();

@@ -5,7 +5,6 @@
 using namespace std;
 
 int main() {
-    f4v_info("hello, world!");
     F4vFileParser* f4vfile = new F4vFileParser("sample1_1500kbps.f4v");
     f4vfile->initialize();
 

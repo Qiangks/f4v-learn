@@ -508,8 +508,8 @@ void F4vFileParser::parse_ftyp(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
     
     FtypBox* ft = dynamic_cast<FtypBox*>(pfb);
-    ft->major_brand = f4v_char_join(buf, 4);
-    ft->minor_version = f4v_char_join(&buf[4], 4);
+    ft->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ft->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
 
     stringstream ss;
     for(int i = 8; i < size; i++) {
@@ -531,20 +531,20 @@ void F4vFileParser::parse_mvhd(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     MvhdBox* mb = dynamic_cast<MvhdBox*>(pfb);
-    mb->version = f4v_char_join(buf, 1);
-    mb->flags = f4v_char_join(&buf[1], 3);
+    mb->version = f4v_bytes_to_uint32(buf, 1);
+    mb->flags = f4v_bytes_to_uint32(&buf[1], 3);
     if (mb->version == 0) {
-        mb->creation_time = f4v_char_join(&buf[4], 4);
-        mb->modification_time = f4v_char_join(&buf[8], 4);
-        mb->timescale = f4v_char_join(&buf[12], 4);
-        mb->duration = f4v_char_join(&buf[16], 4);
-        mb->rate = f4v_char_join(&buf[20], 2) + (float)f4v_char_join(&buf[22], 2)/10;
+        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 4);
+        mb->modification_time = f4v_bytes_to_uint32(&buf[8], 4);
+        mb->timescale = f4v_bytes_to_uint32(&buf[12], 4);
+        mb->duration = f4v_bytes_to_uint32(&buf[16], 4);
+        mb->rate = f4v_bytes_to_uint32(&buf[20], 2) + (float)f4v_bytes_to_uint32(&buf[22], 2)/10;
     } else {
-        mb->creation_time = f4v_char_join(&buf[4], 8);
-        mb->modification_time = f4v_char_join(&buf[12], 8);
-        mb->timescale = f4v_char_join(&buf[20], 4);
-        mb->duration = f4v_char_join(&buf[24], 8);
-        mb->rate = f4v_char_join(&buf[32], 2) + (float)f4v_char_join(&buf[34], 2)/10;
+        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 8);
+        mb->modification_time = f4v_bytes_to_uint32(&buf[12], 8);
+        mb->timescale = f4v_bytes_to_uint32(&buf[20], 4);
+        mb->duration = f4v_bytes_to_uint32(&buf[24], 8);
+        mb->rate = f4v_bytes_to_uint32(&buf[32], 2) + (float)f4v_bytes_to_uint32(&buf[34], 2)/10;
     }
 }
 
@@ -561,17 +561,17 @@ void F4vFileParser::parse_tkhd(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     TkhdBox* tb = dynamic_cast<TkhdBox*>(pfb);
-    tb->version = f4v_char_join(buf, 1);
+    tb->version = f4v_bytes_to_uint32(buf, 1);
     if (tb->version == 0) {
-        tb->creation_time = f4v_char_join(&buf[4], 4);
-        tb->modification_time = f4v_char_join(&buf[8], 4);
-        tb->trak_id= f4v_char_join(&buf[12], 4);
-        tb->duration = f4v_char_join(&buf[20], 4);
+        tb->creation_time = f4v_bytes_to_uint32(&buf[4], 4);
+        tb->modification_time = f4v_bytes_to_uint32(&buf[8], 4);
+        tb->trak_id= f4v_bytes_to_uint32(&buf[12], 4);
+        tb->duration = f4v_bytes_to_uint32(&buf[20], 4);
     } else {
-        tb->creation_time = f4v_char_join(&buf[4], 8);
-        tb->modification_time = f4v_char_join(&buf[12], 8);
-        tb->trak_id = f4v_char_join(&buf[20], 4);
-        tb->duration = f4v_char_join(&buf[28], 8);
+        tb->creation_time = f4v_bytes_to_uint32(&buf[4], 8);
+        tb->modification_time = f4v_bytes_to_uint32(&buf[12], 8);
+        tb->trak_id = f4v_bytes_to_uint32(&buf[20], 4);
+        tb->duration = f4v_bytes_to_uint32(&buf[28], 8);
     }
     
 }
@@ -589,17 +589,17 @@ void F4vFileParser::parse_mdhd(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     MdhdBox* mb = dynamic_cast<MdhdBox*>(pfb);
-    mb->version = f4v_char_join(buf, 1);
+    mb->version = f4v_bytes_to_uint32(buf, 1);
     if (mb->version == 0) {
-        mb->creation_time = f4v_char_join(&buf[4], 4);
-        mb->modification_time = f4v_char_join(&buf[8], 4);
-        mb->timescale = f4v_char_join(&buf[12], 4);
-        mb->duration = f4v_char_join(&buf[16], 4);
+        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 4);
+        mb->modification_time = f4v_bytes_to_uint32(&buf[8], 4);
+        mb->timescale = f4v_bytes_to_uint32(&buf[12], 4);
+        mb->duration = f4v_bytes_to_uint32(&buf[16], 4);
     } else {
-        mb->creation_time = f4v_char_join(&buf[4], 8);
-        mb->modification_time = f4v_char_join(&buf[12], 8);
-        mb->timescale = f4v_char_join(&buf[20], 4);
-        mb->duration = f4v_char_join(&buf[24], 8);
+        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 8);
+        mb->modification_time = f4v_bytes_to_uint32(&buf[12], 8);
+        mb->timescale = f4v_bytes_to_uint32(&buf[20], 4);
+        mb->duration = f4v_bytes_to_uint32(&buf[24], 8);
     }
 }
 
@@ -612,8 +612,8 @@ void F4vFileParser::parse_hdlr(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     HdlrBox* hb = dynamic_cast<HdlrBox*>(pfb);
-    hb->version  = f4v_char_join(buf, 1);
-    hb->handler_type = f4v_char_join(&buf[8], 4);
+    hb->version  = f4v_bytes_to_uint32(buf, 1);
+    hb->handler_type = f4v_bytes_to_uint32(&buf[8], 4);
 }
 
 void F4vFileParser::parse_minf(F4vBoxAtom** ppfb)
@@ -629,12 +629,12 @@ void F4vFileParser::parse_vmhd(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     VmhdBox* vb = dynamic_cast<VmhdBox*>(pfb);
-    vb->version = f4v_char_join(buf, 1);
-    vb->flags = f4v_char_join(&buf[1], 3);
-    vb->graphic_mode = f4v_char_join(&buf[4], 2);
-    vb->op_color[0] = f4v_char_join(&buf[6], 2);
-    vb->op_color[1] = f4v_char_join(&buf[8], 2);
-    vb->op_color[2] = f4v_char_join(&buf[10], 2);
+    vb->version = f4v_bytes_to_uint32(buf, 1);
+    vb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    vb->graphic_mode = f4v_bytes_to_uint32(&buf[4], 2);
+    vb->op_color[0] = f4v_bytes_to_uint32(&buf[6], 2);
+    vb->op_color[1] = f4v_bytes_to_uint32(&buf[8], 2);
+    vb->op_color[2] = f4v_bytes_to_uint32(&buf[10], 2);
 }
 
 void F4vFileParser::parse_dinf(F4vBoxAtom** ppfb)
@@ -650,9 +650,9 @@ void F4vFileParser::parse_dref(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     DrefBox* db = dynamic_cast<DrefBox*>(pfb);
-    db->version = f4v_char_join(buf, 1);
-    db->flags = f4v_char_join(&buf[1], 3);
-    db->entry_count = f4v_char_join(&buf[4], 4);
+    db->version = f4v_bytes_to_uint32(buf, 1);
+    db->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    db->entry_count = f4v_bytes_to_uint32(&buf[4], 4);
 }
 
 void F4vFileParser::parse_url(F4vBoxAtom** ppfb)
@@ -664,8 +664,8 @@ void F4vFileParser::parse_url(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     UrlBox* ub = dynamic_cast<UrlBox*>(pfb);
-    ub->version = f4v_char_join(buf, 1);
-    ub->flags = f4v_char_join(&buf[1], 3);
+    ub->version = f4v_bytes_to_uint32(buf, 1);
+    ub->flags = f4v_bytes_to_uint32(&buf[1], 3);
 }
 
 void F4vFileParser::parse_stbl(F4vBoxAtom** ppfb)
@@ -682,12 +682,12 @@ void F4vFileParser::parse_stsd(F4vBoxAtom** ppfb)
 
     // pfb buf 
     StsdBox* sb = dynamic_cast<StsdBox*>(pfb);
-    sb->version = f4v_char_join(buf, 1);
-    sb->flags = f4v_char_join(&buf[1], 3);
-    sb->count = f4v_char_join(&buf[4], 4);
+    sb->version = f4v_bytes_to_uint32(buf, 1);
+    sb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    sb->count = f4v_bytes_to_uint32(&buf[4], 4);
     for (int i = 0; i < sb->count; i++) {
-        uint32_t size = f4v_char_join(&buf[8], 4);
-        int32_t type = f4v_char_join(&buf[12], 4);
+        uint32_t size = f4v_bytes_to_uint32(&buf[8], 4);
+        int32_t type = f4v_bytes_to_uint32(&buf[12], 4);
     }
 }
 
@@ -700,9 +700,16 @@ void F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     SttsBox* sb = dynamic_cast<SttsBox*>(pfb);
-    sb->version = f4v_char_join(buf, 1);
-    sb->flags = f4v_char_join(&buf[1], 3);
-    sb->count = f4v_char_join(&buf[4], 4);
+    sb->version = f4v_bytes_to_uint32(buf, 1);
+    sb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    sb->count = f4v_bytes_to_uint32(&buf[4], 4);
+    for (uint32_t i = 0; i < sb->count; i++) {
+        SttsRecord sr;
+        sr.sample_count =  f4v_bytes_to_uint32(&buf[8+i*8], 4);
+        sr.sample_delta = f4v_bytes_to_uint32(&buf[8+i*8+4], 4);
+        sb->stts_records.push_back(sr);
+    }
+    printf("111111");
 }
 
 void F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
@@ -714,9 +721,16 @@ void F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     CttsBox* cb = dynamic_cast<CttsBox*>(pfb);
-    cb->version = f4v_char_join(buf, 1);
-    cb->flags = f4v_char_join(&buf[1], 3);
-    cb->count = f4v_char_join(&buf[4], 4);
+    cb->version = f4v_bytes_to_uint32(buf, 1);
+    cb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    cb->count = f4v_bytes_to_uint32(&buf[4], 4);
+    for(uint32_t i = 0; i < cb->count; i++) {
+        CttsRecord cr;
+        cr.sample_count = f4v_bytes_to_uint32(&buf[8+i*8], 4);
+        cr.sample_offset = f4v_bytes_to_uint32(&buf[12+i*8], 4);
+        cb->ctts_records.push_back(cr);
+    }
+    printf("111111");
 }
 
 void F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
@@ -728,9 +742,17 @@ void F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     StscBox* sb = dynamic_cast<StscBox*>(pfb);
-    sb->version = f4v_char_join(buf, 1);
-    sb->flags = f4v_char_join(&buf[1], 3);
-    sb->count = f4v_char_join(&buf[4], 4);
+    sb->version = f4v_bytes_to_uint32(buf, 1);
+    sb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    sb->count = f4v_bytes_to_uint32(&buf[4], 4);
+    for (int i = 0; i< sb->count; i++) {
+        StscRecord sr;
+        sr.first_chunk = f4v_bytes_to_uint32(&buf[8 +i*12], 4);
+        sr.spc = f4v_bytes_to_uint32(&buf[12+i*12], 4);
+        sr.sdi = f4v_bytes_to_uint32(&buf[16+i*12], 4);
+        sb->stsc_records.push_back(sr);
+    }
+    printf("111111");
 }
 
 void F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
@@ -742,10 +764,15 @@ void F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     StszBox* sb = dynamic_cast<StszBox*>(pfb);
-    sb->version = f4v_char_join(buf, 1);
-    sb->flags = f4v_char_join(&buf[1], 3);
-    sb->constant_size = f4v_char_join(&buf[4], 4);
-    sb->size_count = f4v_char_join(&buf[8], 4);
+    sb->version = f4v_bytes_to_uint32(buf, 1);
+    sb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    sb->constant_size = f4v_bytes_to_uint32(&buf[4], 4);
+    sb->size_count = f4v_bytes_to_uint32(&buf[8], 4);
+    for (uint32_t i = 0; i < sb->size_count; i++) {
+        uint32_t st = f4v_bytes_to_uint32(&buf[8+i*4], 4);
+        sb->size_table.push_back(st);
+    }
+    printf("111111");
 }
 
 void F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
@@ -757,9 +784,14 @@ void F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     StcoBox* sb = dynamic_cast<StcoBox*>(pfb);
-    sb->version = f4v_char_join(buf, 1);
-    sb->flags = f4v_char_join(&buf[1], 3);
-    sb->offset_count = f4v_char_join(&buf[4], 4);
+    sb->version = f4v_bytes_to_uint32(buf, 1);
+    sb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    sb->offset_count = f4v_bytes_to_uint32(&buf[4], 4);
+    for (uint32_t i = 0; i < sb->offset_count; i++) {
+        uint32_t offset = f4v_bytes_to_uint32(&buf[8+i*4], 4);
+        sb->offsets.push_back(offset);
+    }
+    printf("111111");
 }
 
 void F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
@@ -771,9 +803,14 @@ void F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
     ::fread(buf, 1, size, fp);
 
     StssBox* sb = dynamic_cast<StssBox*>(pfb);
-    sb->version = f4v_char_join(buf, 1);
-    sb->flags = f4v_char_join(&buf[1], 3);
-    sb->sync_count = f4v_char_join(&buf[4], 4);
+    sb->version = f4v_bytes_to_uint32(buf, 1);
+    sb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    sb->sync_count = f4v_bytes_to_uint32(&buf[4], 4);
+    for (uint32_t i = 0; i < sb->sync_count; i++) {
+        uint32_t st = f4v_bytes_to_uint32(&buf[8+i*4], 4);
+        sb->sync_table.push_back(st);
+    }
+    printf("111111");
 }
 
 void F4vFileParser::parse_smhd(F4vBoxAtom** ppfb)
@@ -789,9 +826,9 @@ void F4vFileParser::parse_smhd(F4vBoxAtom** ppfb)
     float balance;
     
     SmhdBox* sb = dynamic_cast<SmhdBox*>(pfb);
-    sb->version = f4v_char_join(buf, 1);
-    sb->flags = f4v_char_join(&buf[1], 3);
-    sb->balance = (float)f4v_char_join(&buf[4], 1) + (float)f4v_char_join(&buf[5], 1)/10;
+    sb->version = f4v_bytes_to_uint32(buf, 1);
+    sb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    sb->balance = (float)f4v_bytes_to_uint32(&buf[4], 1) + (float)f4v_bytes_to_uint32(&buf[5], 1)/10;
 }
 
 void F4vFileParser::parse_free(F4vBoxAtom** ppfb)
