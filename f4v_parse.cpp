@@ -105,24 +105,24 @@ int F4vFileParser::read(uint64_t start, uint64_t end)
     
     ::fseek(fp, start, SEEK_SET);
     if (end <= ftell(fp)) {
-        ret = ERROR_READ_BOX_POSITION;
+        ret = ERROR_END_POSITION;
         f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
         return ret;
     }
 
     while(ftell(fp) < end) {
-        // record the box start position
+        // get the box start position
         uint64_t sp = ftell(fp);
 
         // read box header
-        char head[BOX_HEADER_SIZE];
+        unsigned char head[BOX_HEADER_SIZE];
         if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_READ_FAILED;
+            ret = ERROR_SYSTEM_READ_FAILED;
             f4v_error("read box header error, ret=%d", ret);
         }
         
-        uint32_t header_size;
-        uint64_t size = 0;
+        uint32_t header_size = -1;
+        uint64_t size = -1;
 
         uint32_t temp = 0;
         char* pp = (char*)&temp;
@@ -156,8 +156,8 @@ int F4vFileParser::read(uint64_t start, uint64_t end)
         }
 
         // get the box type
-        int32_t type = f4v_generate_type(head[4], head[5], head[6], head[7]);
-        // record the box end position
+        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
+        // get the box end position
         uint64_t ep = sp + size;
         
         F4vBoxAtom* fb = NULL;
@@ -484,33 +484,41 @@ int F4vFileParser::parse()
             default:
                 break;
         }
-    }
-
-    if ((ret = parse_sample()) != ERROR_SUCCESS) {
-        f4v_error("parse sample failed, ret=%d", ret);
-        return ret;
+        
+        if (sttsb && stscb && stszb && stcob) {
+            if ((ret = parse_sample()) != ERROR_SUCCESS) {
+                f4v_error("parse sample failed, ret=%d", ret);
+                return ret;
+            }
+            sttsb = NULL;
+            stscb = NULL;
+            stszb = NULL;
+            stcob = NULL;
+        }
     }
 
     return ret;
 }
 
-int F4vFileParser::show_box()
+int F4vFileParser::show()
 {
     int ret = ERROR_SUCCESS;
     
     vector<F4vBoxAtom*>::iterator it;
-    for(it = f4v_atomes.begin(); it != f4v_atomes.end(); it++) {
+    for (it = f4v_atomes.begin(); it != f4v_atomes.end(); it++) {
         F4vBoxAtom* fm = *it;
         fm->display();
     }
 
-    vector<F4vSample>::iterator fs_it;
-    int i = 0;
-    for(fs_it = f4v_samples.begin(); fs_it != f4v_samples.end(); fs_it++) {
-        F4vSample fs = *fs_it;
-        f4v_trace("***********sample id*****************: %d", i);
-        fs.display();
-        i++;
+    vector< vector<F4vSample> >::iterator vv_it;
+
+    for (vv_it = f4v_vvs.begin(); vv_it != f4v_vvs.end(); vv_it++) {
+        std::vector<F4vSample> vfs = *vv_it;
+        vector<F4vSample>::iterator v_it;
+        for (v_it = vfs.begin(); v_it != vfs.end(); v_it++) {
+            F4vSample fs = *v_it;
+            fs.display();
+        }
     }
 
     return ret;
@@ -529,9 +537,11 @@ int F4vFileParser::parse_sample()
 {
     int ret = ERROR_SUCCESS;
 
+    std::vector<F4vSample> f4v_samples;
+
     uint32_t total_chunk = stcob->offset_count;
 
-    f4v_chunk = new F4vChunk[total_chunk];
+    F4vChunk f4v_chunk[total_chunk];
 
     // restore the chunk---->sample list
     uint32_t last_chk_no = total_chunk + 1;
@@ -590,6 +600,7 @@ int F4vFileParser::parse_sample()
         }
     }
 
+    f4v_vvs.push_back(f4v_samples);
     return ret;
 }
 

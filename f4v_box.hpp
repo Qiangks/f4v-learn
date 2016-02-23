@@ -59,6 +59,13 @@ public:
     int32_t minor_version;
     std::string compatible_brands;
 public:
+    // @param st: the box start position
+    // @param sz: the box size
+    // @param ty: the box type
+    // @param hs: the box header size
+    // @param ed: the box end position
+    // @param off: the offset of the box data
+    // @param ic : if box is container box
     FtypBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~FtypBox();
 public:

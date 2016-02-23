@@ -20,7 +20,7 @@ private:
     virtual int read(uint64_t start, uint64_t end) = 0;
     virtual int parse() = 0;
 public:
-    virtual int show_box() = 0;
+    virtual int show() = 0;
 };
 
 class F4vFileParser : virtual public IF4vParser
@@ -30,8 +30,7 @@ private:
     std::string name;
     bool is_eof;
     std::vector<F4vBoxAtom*> f4v_atomes;
-    std::vector<F4vSample> f4v_samples;
-    F4vChunk* f4v_chunk;
+    std::vector<std::vector<F4vSample> > f4v_vvs;
 private:
     StscBox* stscb;
     StszBox* stszb;
@@ -51,7 +50,7 @@ private:
     int read(uint64_t start, uint64_t end);
     int parse();
 public:
-    int show_box();
+    int show();
 private:
     int64_t get_filesize();
 private:
