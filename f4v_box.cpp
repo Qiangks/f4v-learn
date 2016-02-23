@@ -53,8 +53,8 @@ FtypBox::~FtypBox()
 
 void FtypBox::display()
 {
-    f4v_trace("Box Type: %s, Box Size: %ld, Box Major Brand: %s, Box Minor Version: %ld, "
-                    "Box compatible brands: %s", f4v_int2str(type).c_str(), size, f4v_int2str(major_brand).c_str(), minor_version,
+    f4v_trace("Box Type: %s, Box Size: %ld, Major Brand: %s, Minor Version: %ld, compatible brands: %s",
+        f4v_int2str(type).c_str(), size, f4v_int2str(major_brand).c_str(), minor_version,
                     compatible_brands.c_str());
 }
 

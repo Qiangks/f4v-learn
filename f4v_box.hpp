@@ -354,6 +354,7 @@ public:
     uint32_t version;
     uint32_t flags;
     uint32_t count;
+    std::vector<F4vBoxAtom*>descriptions;
 public:
     StsdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StsdBox();
@@ -936,6 +937,5 @@ public:
 public:
     virtual void display();
 };
-
 
 #endif //F4V_PARSEER_F4V_BOX_HPP

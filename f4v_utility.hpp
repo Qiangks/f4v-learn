@@ -8,11 +8,7 @@
 #include <string>
 #include <stdint.h>
 
-int64_t f4v_generate_type(char a, char b, char c, char d);
-
 uint32_t f4v_bytes_to_uint32(unsigned char* buf, int num);
-
-uint32_t f4v_bytes_to_uint32_2(unsigned char** buf, int num);
 
 std::string f4v_int2str(int32_t value);
 
