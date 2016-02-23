@@ -5,6 +5,26 @@
 #include "f4v_box.hpp"
 #include "f4v_log.hpp"
 #include "f4v_utility.hpp"
+#include "f4v_type.hpp"
+
+
+F4vSample::F4vSample()
+{
+}
+
+F4vSample::~F4vSample()
+{
+}
+
+int F4vSample::display()
+{
+    int ret = ERROR_SUCCESS;
+
+    f4v_trace("sample size: %d, sample duration: %d, sample offset: %d, sample chunk index: %d "
+                    "sample index in chunk: %d", size, duration, offset, chunk_index, index_in_chunk);
+
+    return ret;
+}
 
 F4vBoxAtom::F4vBoxAtom(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
 {

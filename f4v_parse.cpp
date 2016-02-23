@@ -46,6 +46,15 @@ F4vFileParser::F4vFileParser(std::string str)
 {
     name = str;
     is_eof = false;
+    stscb = NULL;
+    stscb = NULL;
+    stszb = NULL;
+    sttsb = NULL;
+    stcob = NULL;
+    stssb = NULL;
+    cttsb = NULL;
+    
+    
 }
 
 F4vFileParser::~F4vFileParser()
@@ -452,22 +461,22 @@ int F4vFileParser::parse()
                 parse_stsd(&fm);
                 break;
             case stts:
-                parse_stts(&fm);
+                sttsb = parse_stts(&fm);
                 break;
             case ctts:
-                parse_ctts(&fm);
+                cttsb = parse_ctts(&fm);
                 break;
             case stsc:
-                parse_stsc(&fm);
+                stscb = parse_stsc(&fm);
                 break;
             case stsz:
-                parse_stsz(&fm);
+                stszb = parse_stsz(&fm);
                 break;
             case stco:
-                parse_stco(&fm);
+                stcob = parse_stco(&fm);
                 break;
             case stss:
-                parse_stss(&fm);
+                stssb = parse_stss(&fm);
                 break;
             case smhd:
                 parse_smhd(&fm);
@@ -475,19 +484,36 @@ int F4vFileParser::parse()
             default:
                 break;
         }
-        
+    }
+
+    if ((ret = parse_sample()) != ERROR_SUCCESS) {
+        f4v_error("parse sample failed, ret=%d", ret);
+        return ret;
     }
 
     return ret;
 }
 
-void F4vFileParser::show_box()
+int F4vFileParser::show_box()
 {
+    int ret = ERROR_SUCCESS;
+    
     vector<F4vBoxAtom*>::iterator it;
     for(it = f4v_atomes.begin(); it != f4v_atomes.end(); it++) {
         F4vBoxAtom* fm = *it;
         fm->display();
     }
+
+    vector<F4vSample>::iterator fs_it;
+    int i = 0;
+    for(fs_it = f4v_samples.begin(); fs_it != f4v_samples.end(); fs_it++) {
+        F4vSample fs = *fs_it;
+        f4v_trace("***********sample id*****************: %d", i);
+        fs.display();
+        i++;
+    }
+
+    return ret;
 }
 
 int64_t F4vFileParser::get_filesize()
@@ -497,6 +523,74 @@ int64_t F4vFileParser::get_filesize()
     int64_t size = ftell(fp);
     ::fseek(fp, cur, SEEK_SET);
     return size;
+}
+
+int F4vFileParser::parse_sample()
+{
+    int ret = ERROR_SUCCESS;
+
+    uint32_t total_chunk = stcob->offset_count;
+
+    f4v_chunk = new F4vChunk[total_chunk];
+
+    // restore the chunk---->sample list
+    uint32_t last_chk_no = total_chunk + 1;
+    for (int i = stscb->count - 1; i >= 0; --i) {
+        uint32_t beg_real_chkno = stscb->stsc_records[i].first_chunk;
+        
+        for (uint32_t chk_i = beg_real_chkno - 1; chk_i < last_chk_no - 1; chk_i++) {
+            f4v_chunk[chk_i].sample_count = stscb->stsc_records[i].spc;      
+            f4v_chunk[chk_i].sdi = stscb->stsc_records[i].sdi;
+        }
+        last_chk_no = beg_real_chkno; 
+    }
+
+    // restore the sample---->chunk list
+    uint32_t sam_index = 0;
+    for(uint32_t i = 0; i < total_chunk; i++) {
+        f4v_chunk[i].first_sample_index = sam_index;
+
+        uint32_t index_in_chunk = 0;
+        for(uint32_t sam_i = 0; sam_i < f4v_chunk[i].sample_count; sam_i++) {
+            F4vSample fs;
+            fs.chunk_index = i;
+            fs.index_in_chunk = index_in_chunk;
+            f4v_samples.push_back(fs);
+
+            sam_index++;
+            index_in_chunk++;
+        }
+    }
+
+    // get each sample's size, duration
+    for(uint32_t i = 0; i < stszb->size_count; i++) {
+        f4v_samples[i].size = stszb->size_table[i];
+    }
+
+    // get each sample's offset
+    for(int i = 0; i < stszb->size_count; i++) {
+        uint32_t chk_no = f4v_samples[i].chunk_index;
+        uint32_t index_in_chunk = f4v_samples[i].index_in_chunk;
+        f4v_samples[i].offset = stcob->offsets[chk_no];
+        for (int j = 0; j < index_in_chunk; j++) {
+            f4v_samples[i].offset += f4v_samples[i-j].size;
+        }
+    }
+
+    // get each sample's duration
+    int record_no = 0;
+    int count = 0;
+    for(int i = 0; i < sttsb->count; i++) {
+        count = count + sttsb->stts_records[i].sample_count;
+
+        for(int j = 0; j < stszb->size_count; j++) {
+            if(j < count) {
+                f4v_samples[j].duration = sttsb->stts_records[i].sample_delta;
+            }
+        }
+    }
+
+    return ret;
 }
 
 void F4vFileParser::parse_ftyp(F4vBoxAtom** ppfb)
@@ -691,7 +785,7 @@ void F4vFileParser::parse_stsd(F4vBoxAtom** ppfb)
     }
 }
 
-void F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
+SttsBox* F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
 {
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
@@ -709,10 +803,11 @@ void F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
         sr.sample_delta = f4v_bytes_to_uint32(&buf[8+i*8+4], 4);
         sb->stts_records.push_back(sr);
     }
-    printf("111111");
+
+    return sb;
 }
 
-void F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
+CttsBox* F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
 {
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
@@ -730,10 +825,11 @@ void F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
         cr.sample_offset = f4v_bytes_to_uint32(&buf[12+i*8], 4);
         cb->ctts_records.push_back(cr);
     }
-    printf("111111");
+
+    return cb;
 }
 
-void F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
+StscBox* F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
 {
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
@@ -752,10 +848,11 @@ void F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
         sr.sdi = f4v_bytes_to_uint32(&buf[16+i*12], 4);
         sb->stsc_records.push_back(sr);
     }
-    printf("111111");
+
+    return sb;
 }
 
-void F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
+StszBox* F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
 {
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
@@ -772,10 +869,11 @@ void F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
         uint32_t st = f4v_bytes_to_uint32(&buf[8+i*4], 4);
         sb->size_table.push_back(st);
     }
-    printf("111111");
+
+    return sb;
 }
 
-void F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
+StcoBox* F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
 {
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
@@ -791,10 +889,11 @@ void F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
         uint32_t offset = f4v_bytes_to_uint32(&buf[8+i*4], 4);
         sb->offsets.push_back(offset);
     }
-    printf("111111");
+    
+    return sb;
 }
 
-void F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
+StssBox* F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
 {
     F4vBoxAtom* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
@@ -810,7 +909,8 @@ void F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
         uint32_t st = f4v_bytes_to_uint32(&buf[8+i*4], 4);
         sb->sync_table.push_back(st);
     }
-    printf("111111");
+
+    return sb;
 }
 
 void F4vFileParser::parse_smhd(F4vBoxAtom** ppfb)
