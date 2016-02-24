@@ -132,6 +132,100 @@ MoovBox::~MoovBox()
 {
 }
 
+int MoovBox::read(FILE * fp, uint64_t start, uint64_t end)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ::fseek(fp, start, SEEK_SET);
+    if (end <= ftell(fp)) {
+        ret = ERROR_END_POSITION;
+        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
+        return ret;
+    }
+
+    while(ftell(fp) < end) {
+        // get the box start position
+        uint64_t sp = ftell(fp);
+
+        // read box header
+        unsigned char head[BOX_HEADER_SIZE];
+        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
+            ret = ERROR_SYSTEM_READ_FAILED;
+            f4v_error("read box header error, ret=%d", ret);
+        }
+        
+        uint32_t header_size = -1;
+        uint64_t size = -1;
+
+        uint32_t temp = 0;
+        char* pp = (char*)&temp;
+        pp[3] = head[0];
+        pp[2] = head[1];
+        pp[1] = head[2];
+        pp[0] = head[3];
+
+        // get the box size
+        if(temp == 1) {
+            char extend[BOX_EXTENDED_SIZE];
+            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
+                ret = ERROR_READ_BOX_HEADER_FAILED;
+                f4v_error("read the box header extended size error, ret=%d", ret);
+                return ret;
+            }
+            pp = (char*)&(size);
+            pp[7] = extend[0];
+            pp[6] = extend[1];
+            pp[5] = extend[2];
+            pp[4] = extend[3];
+            pp[3] = extend[4];
+            pp[2] = extend[5];
+            pp[1] = extend[6];
+            pp[0] = extend[7];
+
+            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
+        } else {
+            header_size = BOX_HEADER_SIZE;
+            size = temp;
+        }
+
+        // get the box type
+        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
+        // get the box end position
+        uint64_t ep = sp + size;
+        
+        switch(type){
+            case mvhd:
+                mvhdx = new MvhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case trak:
+                TrakBox* trakx = new TrakBox(sp, size, type, header_size, ep, header_size, true);
+                trakxv.push_back(trakx);
+                break;
+            case mvex:
+                mvexx = new MvexBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case auth:
+                authx = new AuthBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case titl:
+                titlx = new TitlBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case dscp:
+                dscpx = new DscpBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case cprt:
+                cprtx = new CprtBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case udta:
+                udtax = new UdtaBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            default:
+                break;
+        }
+
+        ::fseek(fp, ep, SEEK_SET);
+}
+
 void MoovBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
@@ -634,6 +728,82 @@ MoofBox::MoofBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed,
 
 MoofBox::~MoofBox()
 {
+}
+
+
+int MoofBox::read(FILE * fp, uint64_t start, uint64_t end)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ::fseek(fp, start, SEEK_SET);
+    if (end <= ftell(fp)) {
+        ret = ERROR_END_POSITION;
+        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
+        return ret;
+    }
+
+    while(ftell(fp) < end) {
+        // get the box start position
+        uint64_t sp = ftell(fp);
+
+        // read box header
+        unsigned char head[BOX_HEADER_SIZE];
+        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
+            ret = ERROR_SYSTEM_READ_FAILED;
+            f4v_error("read box header error, ret=%d", ret);
+        }
+        
+        uint32_t header_size = -1;
+        uint64_t size = -1;
+
+        uint32_t temp = 0;
+        char* pp = (char*)&temp;
+        pp[3] = head[0];
+        pp[2] = head[1];
+        pp[1] = head[2];
+        pp[0] = head[3];
+
+        // get the box size
+        if(temp == 1) {
+            char extend[BOX_EXTENDED_SIZE];
+            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
+                ret = ERROR_READ_BOX_HEADER_FAILED;
+                f4v_error("read the box header extended size error, ret=%d", ret);
+                return ret;
+            }
+            pp = (char*)&(size);
+            pp[7] = extend[0];
+            pp[6] = extend[1];
+            pp[5] = extend[2];
+            pp[4] = extend[3];
+            pp[3] = extend[4];
+            pp[2] = extend[5];
+            pp[1] = extend[6];
+            pp[0] = extend[7];
+
+            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
+        } else {
+            header_size = BOX_HEADER_SIZE;
+            size = temp;
+        }
+
+        // get the box type
+        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
+        // get the box end position
+        uint64_t ep = sp + size;
+        
+        switch(type){
+            case mfhd:
+                mfhdx = new MfhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case traf:
+                trafx = new TrafBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            default:
+                break;
+        }
+
+        ::fseek(fp, ep, SEEK_SET);
 }
 
 void MoofBox::display()

@@ -42,6 +42,7 @@ public:
     uint32_t header_size;
     uint64_t end;
     uint32_t offset;
+    
 public:
     // whether the box is a container box
     bool is_container;
@@ -141,6 +142,8 @@ public:
 public:
     MoovBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MoovBox();
+public:
+    int read(FILE * fp, uint64_t start, uint64_t end);
 public:
     virtual void display();
 };
@@ -616,10 +619,13 @@ public:
 class MoofBox : public F4vBoxAtom
 {
 public:
-
+    MfhdBox* mfhdx;
+    TrafBox* trafx;
 public:
     MoofBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MoofBox();
+public:
+    int read(FILE * fp, uint64_t start, uint64_t end);
 public:
     virtual void display();
 };
@@ -627,7 +633,7 @@ public:
 class MfhdBox : public F4vBoxAtom
 {
 public:
-
+    
 public:
     MfhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MfhdBox();
@@ -638,6 +644,8 @@ public:
 class TrafBox : public F4vBoxAtom
 {
 public:
+    TfhdBox* tfhdx;
+    TrunBox* trunx;
 public:
     TrafBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~TrafBox();
