@@ -8,6 +8,47 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <stdio.h>
+
+class MvhdBox;
+class TrakBox;
+class MvexBox;
+class AuthBox;
+class TitlBox;
+class DscpBox;
+class CprtBox;
+class UdtaBox;
+class TkhdBox;
+class EdtsBox;
+class MdiaBox;
+class ElstBox;
+class MdhdBox;
+class HdlrBox;
+class MinfBox;
+class VmhdBox;
+class SmhdBox;
+class HmhdBox;
+class NmhdBox;
+class DinfBox;
+class StblBox;
+class DrefBox;
+class UrlBox;
+class StsdBox;
+class SttsBox;
+class CttsBox;
+class StscBox;
+class StszBox;
+class StcoBox;
+class Co64Box;
+class StssBox;
+class SdtpBox;
+class MehdBox;
+class TrexBox;
+class MfhdBox;
+class TrafBox;
+class TfhdBox;
+class TrunBox;
+
 
 class F4vSample
 {
@@ -47,6 +88,13 @@ public:
     // whether the box is a container box
     bool is_container;
 public:
+    // @param st: the box start position
+    // @param sz: the box size
+    // @param ty: the box type
+    // @param hs: the box header size
+    // @param ed: the box end position
+    // @param off: the offset of the box data
+    // @param ic : if box is container box
     F4vBoxAtom(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~F4vBoxAtom();
 public:
@@ -60,13 +108,6 @@ public:
     int32_t minor_version;
     std::string compatible_brands;
 public:
-    // @param st: the box start position
-    // @param sz: the box size
-    // @param ty: the box type
-    // @param hs: the box header size
-    // @param ed: the box end position
-    // @param off: the offset of the box data
-    // @param ic : if box is container box
     FtypBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~FtypBox();
 public:
@@ -338,7 +379,7 @@ public:
     uint32_t version;
     uint32_t flags;
     uint32_t entry_count;
-    UrlBox* urlx
+    UrlBox* urlx;
 public:
     DrefBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~DrefBox();

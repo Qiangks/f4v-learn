@@ -61,16 +61,6 @@ F4vFileParser::F4vFileParser(std::string str)
     freex = NULL;
     skipx = NULL;
     mfrax = NULL;
-    
-    stscb = NULL;
-    stscb = NULL;
-    stszb = NULL;
-    sttsb = NULL;
-    stcob = NULL;
-    stssb = NULL;
-    cttsb = NULL;
-    
-    
 }
 
 F4vFileParser::~F4vFileParser()
@@ -582,12 +572,6 @@ int F4vFileParser::read_afrax()
 {
     int ret = ERROR_SUCCESS;
 
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
     return ret;
 }
 
@@ -800,41 +784,18 @@ int F4vFileParser::parse()
             case stsd:
                 parse_stsd(&fm);
                 break;
-            case stts:
-                sttsb = parse_stts(&fm);
-                break;
-            case ctts:
-                cttsb = parse_ctts(&fm);
-                break;
-            case stsc:
-                stscb = parse_stsc(&fm);
-                break;
-            case stsz:
-                stszb = parse_stsz(&fm);
-                break;
-            case stco:
-                stcob = parse_stco(&fm);
-                break;
-            case stss:
-                stssb = parse_stss(&fm);
-                break;
             case smhd:
                 parse_smhd(&fm);
                 break;
             default:
                 break;
         }
+    }
         
-        if (sttsb && stscb && stszb && stcob) {
-            if ((ret = parse_sample()) != ERROR_SUCCESS) {
-                f4v_error("parse sample failed, ret=%d", ret);
-                return ret;
-            }
-            sttsb = NULL;
-            stscb = NULL;
-            stszb = NULL;
-            stcob = NULL;
-        }
+
+    if ((ret = parse_sample()) != ERROR_SUCCESS) {
+        f4v_error("parse sample failed, ret=%d", ret);
+        return ret;
     }
 
     return ret;
@@ -876,7 +837,7 @@ int64_t F4vFileParser::get_filesize()
 int F4vFileParser::parse_sample()
 {
     int ret = ERROR_SUCCESS;
-
+/*
     std::vector<F4vSample> f4v_samples;
 
     uint32_t total_chunk = stcob->offset_count;
@@ -941,6 +902,7 @@ int F4vFileParser::parse_sample()
     }
 
     f4v_vvs.push_back(f4v_samples);
+*/    
     return ret;
 }
 
