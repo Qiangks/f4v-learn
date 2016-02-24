@@ -5,10 +5,283 @@
 #ifndef F4V_PARSEER_F4V_BOX_HPP
 #define F4V_PARSEER_F4V_BOX_HPP
 
-#include <stdint.h>
 #include <string>
 #include <vector>
 #include <stdio.h>
+
+
+#include <stdint.h>
+class F4vBox
+{
+public:
+    // start position
+    uint64_t sp;
+    // box header size
+    uint32_t hs;
+    // end position
+    uint64_t ep;
+    uint64_t size;
+    int32_t type;
+public:
+    std::vector<F4vBox*> container;
+public:
+    F4vBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
+    virtual ~F4vBox();
+public:
+    virutal int initialize(FILE* fp) = 0;
+    virtual void display() = 0;
+};
+
+class FtypBox : public F4vBox
+{
+public:
+    int32_t major_brand;
+    int32_t minor_version;
+    std::string compatible_brands;
+public:
+    FtypBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~FtypBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class PdinBox : public F4vBox
+{
+public:
+
+public:
+    PdinBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~PdinBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class AfraBox : public F4vBox
+{
+public:
+    AfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~AfraBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class AbstBox : public F4vBox
+{
+public:
+   
+public:
+    AbstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~AbstBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class MoovBox : public F4vBox
+{
+public:
+    MoovBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
+    virtual ~MoovBox();
+public:
+    virtual int initialize(FILE* fp);
+public:
+    int read(FILE* fp, int start, int end);
+    virtual void display();
+    int add(F4vBox* fb);
+};
+
+class UuidBox : public F4vBox
+{
+public:
+
+public:
+    UuidBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
+    virtual ~UuidBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class MoofBox : public F4vBox
+{
+public:
+    MfhdBox* mfhdx;
+    TrafBox* trafx;
+public:
+    MoofBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
+    virtual ~MoofBox();
+public:
+    int read(FILE * fp, uint64_t start, uint64_t end);
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class MdatBox : public F4vBox
+{
+public:
+
+public:
+    MdatBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MdatBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class MetaBox : public F4vBox
+{
+public:
+
+public:
+    MetaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MetaBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class FreeBox : public F4vBox
+{
+public:
+
+public:
+    FreeBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
+    virtual ~FreeBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class SkipBox : public F4vBox
+{
+public:
+
+public:
+    SkipBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
+    virtual ~SkipBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class MfraBox : public F4vBox
+{
+public:
+
+public:
+    MfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MfraBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class MvhdBox : public F4vBox
+{
+public:
+    uint32_t version;
+    uint32_t flags;
+    uint64_t creation_time;
+    uint64_t modification_time;
+    uint32_t timescale;
+    uint64_t duration;
+    float rate;
+public:
+    MvhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MvhdBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class TrakBox : public F4vBox
+{
+public:
+public:
+    TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
+    virtual ~TrakBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class MvexBox : public F4vBox
+{
+public:
+    MehdBox* mehdx;
+    TrexBox* trexx;
+public:
+    MvexBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~MvexBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class AuthBox : public F4vBox
+{
+public:
+
+public:
+    AuthBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~AuthBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class TitlBox : public F4vBox
+{
+public:
+
+public:
+    TitlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~TitlBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class DscpBox : public F4vBox
+{
+public:
+
+public:
+    DscpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~DscpBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class CprtBox : public F4vBox
+{
+public:
+
+public:
+    CprtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~CprtBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
+class UdtaBox : public F4vBox
+{
+public:
+
+public:
+    UdtaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
+    virtual ~UdtaBox();
+public:
+    virtual int initialize(FILE* fp);
+    virtual void display();
+};
+
 
 class MvhdBox;
 class TrakBox;
@@ -74,80 +347,9 @@ typedef struct _f4v_chunk
     uint32_t sdi;
 }F4vChunk;
 
-class F4vBoxAtom
-{
-public:
-    uint64_t start;
-    uint64_t size;
-    int32_t type;
-    uint32_t header_size;
-    uint64_t end;
-    uint32_t offset;
-    
-public:
-    // whether the box is a container box
-    bool is_container;
-public:
-    // @param st: the box start position
-    // @param sz: the box size
-    // @param ty: the box type
-    // @param hs: the box header size
-    // @param ed: the box end position
-    // @param off: the offset of the box data
-    // @param ic : if box is container box
-    F4vBoxAtom(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~F4vBoxAtom();
-public:
-    virtual void display() = 0;
-};
+//    std::vecotr<F4vBox*> container;
 
-class FtypBox : public F4vBoxAtom
-{
-public:
-    int32_t major_brand;
-    int32_t minor_version;
-    std::string compatible_brands;
-public:
-    FtypBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~FtypBox();
-public:
-    virtual void display();
-};
-
-//    std::vecotr<F4vBoxAtom*> container;
-
-class PdinBox : public F4vBoxAtom
-{
-public:
-
-public:
-    PdinBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~PdinBox();
-public:
-    virtual void display();
-};
-
-class AfraBox : public F4vBoxAtom
-{
-public:
-    AfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~AfraBox();
-public:
-    virtual void display();
-};
-
-class AbstBox : public F4vBoxAtom
-{
-public:
-   
-public:
-    AbstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~AbstBox();
-public:
-    virtual void display();
-};
-
-class AsrtBox : public F4vBoxAtom
+class AsrtBox : public F4vBox
 {
 public:
 
@@ -158,7 +360,7 @@ public:
     virtual void display();
 };
 
-class AfrtBox : public F4vBoxAtom
+class AfrtBox : public F4vBox
 {
 public:
 
@@ -169,57 +371,7 @@ public:
     virtual void display();
 };
 
-class MoovBox : public F4vBoxAtom
-{
-public:
-    MvhdBox* mvhdx;
-    std::vector<TrakBox*>trakxv;
-    MvexBox* mvexx;
-    AuthBox* authx;
-    TitlBox* titlx;
-    DscpBox* dscpx;
-    CprtBox* cprtx;
-    UdtaBox* udtax;
-public:
-    MoovBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~MoovBox();
-public:
-    int read(FILE * fp, uint64_t start, uint64_t end);
-public:
-    virtual void display();
-};
-
-class MvhdBox : public F4vBoxAtom
-{
-public:
-    uint32_t version;
-    uint32_t flags;
-    uint64_t creation_time;
-    uint64_t modification_time;
-    uint32_t timescale;
-    uint64_t duration;
-    float rate;
-public:
-    MvhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~MvhdBox();
-public:
-    virtual void display();
-};
-
-class TrakBox : public F4vBoxAtom
-{
-public:
-    TkhdBox* tkhdx;
-    EdtsBox* edtsx;
-    MdiaBox* mdiax;
-public:
-    TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~TrakBox();
-public:
-    virtual void display();
-};
-
-class TkhdBox : public F4vBoxAtom
+class TkhdBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -235,7 +387,7 @@ public:
     virtual void display();
 };
 
-class EdtsBox : public F4vBoxAtom
+class EdtsBox : public F4vBox
 {
 public:
     ElstBox* elstx;
@@ -246,7 +398,7 @@ public:
     virtual void display();
 };
 
-class ElstBox : public F4vBoxAtom
+class ElstBox : public F4vBox
 {
 public:
 
@@ -257,7 +409,7 @@ public:
     virtual void display();
 };
 
-class MdiaBox : public F4vBoxAtom
+class MdiaBox : public F4vBox
 {
 public:
     MdhdBox* mdhdx;
@@ -270,7 +422,7 @@ public:
     virtual void display();
 };
 
-class MdhdBox : public F4vBoxAtom
+class MdhdBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -285,7 +437,7 @@ public:
     virtual void display();
 };
 
-class HdlrBox : public F4vBoxAtom
+class HdlrBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -297,7 +449,7 @@ public:
     virtual void display();
 };
 
-class MinfBox : public F4vBoxAtom
+class MinfBox : public F4vBox
 {
 public:
     VmhdBox* vmhdx;
@@ -313,7 +465,7 @@ public:
     virtual void display();
 };
 
-class VmhdBox : public F4vBoxAtom
+class VmhdBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -327,7 +479,7 @@ public:
     virtual void display();
 };
 
-class SmhdBox : public F4vBoxAtom
+class SmhdBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -340,7 +492,7 @@ public:
     virtual void display();
 };
 
-class HmhdBox : public F4vBoxAtom
+class HmhdBox : public F4vBox
 {
 public:
 
@@ -351,7 +503,7 @@ public:
     virtual void display();
 };
 
-class NmhdBox : public F4vBoxAtom
+class NmhdBox : public F4vBox
 {
 public:
 
@@ -362,7 +514,7 @@ public:
     virtual void display();
 };
 
-class DinfBox : public F4vBoxAtom
+class DinfBox : public F4vBox
 {
 public:
     DrefBox* drefx;
@@ -373,7 +525,7 @@ public:
     virtual void display();
 };
 
-class DrefBox : public F4vBoxAtom
+class DrefBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -387,7 +539,7 @@ public:
     virtual void display();
 };
 
-class UrlBox : public F4vBoxAtom
+class UrlBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -399,7 +551,7 @@ public:
     virtual void display();
 };
 
-class StblBox : public F4vBoxAtom
+class StblBox : public F4vBox
 {
 public:
     StsdBox* stsdx;
@@ -418,13 +570,13 @@ public:
     virtual void display();
 };
 
-class StsdBox : public F4vBoxAtom
+class StsdBox : public F4vBox
 {
 public:
     uint32_t version;
     uint32_t flags;
     uint32_t count;
-    std::vector<F4vBoxAtom*>descriptions;
+    std::vector<F4vBox*>descriptions;
 public:
     StsdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StsdBox();
@@ -437,7 +589,7 @@ typedef struct _stts_record{
     uint32_t sample_delta;
 }SttsRecord;
 
-class SttsBox : public F4vBoxAtom
+class SttsBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -456,7 +608,7 @@ typedef struct _ctts_record{
     uint32_t sample_offset;
 }CttsRecord;
 
-class CttsBox : public F4vBoxAtom
+class CttsBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -478,7 +630,7 @@ typedef struct _stsc_record{
     uint32_t sdi;
 } StscRecord;
 
-class StscBox : public F4vBoxAtom
+class StscBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -492,7 +644,7 @@ public:
     virtual void display();
 };
 
-class StszBox : public F4vBoxAtom
+class StszBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -507,7 +659,7 @@ public:
     virtual void display();
 };
 
-class StcoBox : public F4vBoxAtom
+class StcoBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -521,7 +673,7 @@ public:
     virtual void display();
 };
 
-class Co64Box : public F4vBoxAtom
+class Co64Box : public F4vBox
 {
 public:
 
@@ -532,7 +684,7 @@ public:
     virtual void display();
 };
 
-class StssBox : public F4vBoxAtom
+class StssBox : public F4vBox
 {
 public:
     uint32_t version;
@@ -546,7 +698,7 @@ public:
     virtual void display();
 };
 
-class SdtpBox : public F4vBoxAtom
+class SdtpBox : public F4vBox
 {
 public:
 
@@ -557,19 +709,7 @@ public:
     virtual void display();
 };
 
-class MvexBox : public F4vBoxAtom
-{
-public:
-    MehdBox* mehdx;
-    TrexBox* trexx;
-public:
-    MvexBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~MvexBox();
-public:
-    virtual void display();
-};
-
-class MehdBox : public F4vBoxAtom
+class MehdBox : public F4vBox
 {
 public:
 
@@ -580,7 +720,7 @@ public:
     virtual void display();
 };
 
-class TrexBox : public F4vBoxAtom
+class TrexBox : public F4vBox
 {
 public:
 
@@ -591,73 +731,7 @@ public:
     virtual void display();
 };
 
-class AuthBox : public F4vBoxAtom
-{
-public:
-
-public:
-    AuthBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~AuthBox();
-public:
-    virtual void display();
-};
-
-class TitlBox : public F4vBoxAtom
-{
-public:
-
-public:
-    TitlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~TitlBox();
-public:
-    virtual void display();
-};
-
-class DscpBox : public F4vBoxAtom
-{
-public:
-
-public:
-    DscpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~DscpBox();
-public:
-    virtual void display();
-};
-
-class CprtBox : public F4vBoxAtom
-{
-public:
-
-public:
-    CprtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~CprtBox();
-public:
-    virtual void display();
-};
-
-class UdtaBox : public F4vBoxAtom
-{
-public:
-
-public:
-    UdtaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~UdtaBox();
-public:
-    virtual void display();
-};
-
-class UuidBox : public F4vBoxAtom
-{
-public:
-
-public:
-    UuidBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~UuidBox();
-public:
-    virtual void display();
-};
-
-class MoofBox : public F4vBoxAtom
+class MoofBox : public F4vBox
 {
 public:
     MfhdBox* mfhdx;
@@ -671,7 +745,7 @@ public:
     virtual void display();
 };
 
-class MfhdBox : public F4vBoxAtom
+class MfhdBox : public F4vBox
 {
 public:
     
@@ -682,7 +756,7 @@ public:
     virtual void display();
 };
 
-class TrafBox : public F4vBoxAtom
+class TrafBox : public F4vBox
 {
 public:
     TfhdBox* tfhdx;
@@ -694,7 +768,7 @@ public:
     virtual void display();
 };
 
-class TfhdBox : public F4vBoxAtom
+class TfhdBox : public F4vBox
 {
 public:
 
@@ -705,7 +779,7 @@ public:
     virtual void display();
 };
 
-class TrunBox : public F4vBoxAtom
+class TrunBox : public F4vBox
 {
 public:
 
@@ -716,29 +790,7 @@ public:
     virtual void display();
 };
 
-class MdatBox : public F4vBoxAtom
-{
-public:
-
-public:
-    MdatBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~MdatBox();
-public:
-    virtual void display();
-};
-
-class MetaBox : public F4vBoxAtom
-{
-public:
-
-public:
-    MetaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~MetaBox();
-public:
-    virtual void display();
-};
-
-class IlstBox : public F4vBoxAtom
+class IlstBox : public F4vBox
 {
 public:
 
@@ -749,40 +801,7 @@ public:
     virtual void display();
 };
 
-class FreeBox : public F4vBoxAtom
-{
-public:
-
-public:
-    FreeBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~FreeBox();
-public:
-    virtual void display();
-};
-
-class SkipBox : public F4vBoxAtom
-{
-public:
-
-public:
-    SkipBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~SkipBox();
-public:
-    virtual void display();
-};
-
-class MfraBox : public F4vBoxAtom
-{
-public:
-
-public:
-    MfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
-    virtual ~MfraBox();
-public:
-    virtual void display();
-};
-
-class TfraBox : public F4vBoxAtom
+class TfraBox : public F4vBox
 {
 public:
 
@@ -793,7 +812,7 @@ public:
     virtual void display();
 };
 
-class MfroBox : public F4vBoxAtom
+class MfroBox : public F4vBox
 {
 public:
 
@@ -805,7 +824,7 @@ public:
 };
 
 // box in StsdBox
-class RtmpBox : public F4vBoxAtom
+class RtmpBox : public F4vBox
 {
 public:
 
@@ -816,7 +835,7 @@ public:
     virtual void display();
 };
 
-class AmhpBox : public F4vBoxAtom
+class AmhpBox : public F4vBox
 {
 public:
 
@@ -827,7 +846,7 @@ public:
     virtual void display();
 };
 
-class AmtoBox : public F4vBoxAtom
+class AmtoBox : public F4vBox
 {
 public:
 
@@ -838,7 +857,7 @@ public:
     virtual void display();
 };
 
-class EncvBox : public F4vBoxAtom
+class EncvBox : public F4vBox
 {
 public:
 
@@ -849,7 +868,7 @@ public:
     virtual void display();
 };
 
-class EncaBox : public F4vBoxAtom
+class EncaBox : public F4vBox
 {
 public:
 
@@ -860,7 +879,7 @@ public:
     virtual void display();
 };
 
-class EncrBox : public F4vBoxAtom
+class EncrBox : public F4vBox
 {
 public:
 
@@ -871,7 +890,7 @@ public:
     virtual void display();
 };
 
-class SinfBox : public F4vBoxAtom
+class SinfBox : public F4vBox
 {
 public:
 
@@ -882,7 +901,7 @@ public:
     virtual void display();
 };
 
-class FrmaBox : public F4vBoxAtom
+class FrmaBox : public F4vBox
 {
 public:
 
@@ -893,7 +912,7 @@ public:
     virtual void display();
 };
 
-class SchmBox : public F4vBoxAtom
+class SchmBox : public F4vBox
 {
 public:
 
@@ -904,7 +923,7 @@ public:
     virtual void display();
 };
 
-class SchiBox : public F4vBoxAtom
+class SchiBox : public F4vBox
 {
 public:
 
@@ -915,7 +934,7 @@ public:
     virtual void display();
 };
 
-class AdkmBox : public F4vBoxAtom
+class AdkmBox : public F4vBox
 {
 public:
 
@@ -926,7 +945,7 @@ public:
     virtual void display();
 };
 
-class AhdrBox : public F4vBoxAtom
+class AhdrBox : public F4vBox
 {
 public:
 
@@ -937,7 +956,7 @@ public:
     virtual void display();
 };
 
-class AprmBox : public F4vBoxAtom
+class AprmBox : public F4vBox
 {
 public:
 
@@ -948,7 +967,7 @@ public:
     virtual void display();
 };
 
-class AeibBox : public F4vBoxAtom
+class AeibBox : public F4vBox
 {
 public:
 
@@ -959,7 +978,7 @@ public:
     virtual void display();
 };
 
-class AkeyBox : public F4vBoxAtom
+class AkeyBox : public F4vBox
 {
 public:
 
@@ -970,7 +989,7 @@ public:
     virtual void display();
 };
 
-class ApsBox : public F4vBoxAtom
+class ApsBox : public F4vBox
 {
 public:
 
@@ -981,7 +1000,7 @@ public:
     virtual void display();
 };
 
-class FlxsBox : public F4vBoxAtom
+class FlxsBox : public F4vBox
 {
 public:
 
@@ -992,7 +1011,7 @@ public:
     virtual void display();
 };
 
-class AsigBox : public F4vBoxAtom
+class AsigBox : public F4vBox
 {
 public:
 
@@ -1003,7 +1022,7 @@ public:
     virtual void display();
 };
 
-class AdafBox : public F4vBoxAtom
+class AdafBox : public F4vBox
 {
 public:
 

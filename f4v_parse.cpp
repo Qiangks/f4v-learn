@@ -45,27 +45,12 @@ IF4vParser::~IF4vParser()
 
 F4vFileParser::F4vFileParser(std::string str)
 {
-    name = str;
-    is_eof = false;
-
-
-    ftypx = NULL;
-    pdinx = NULL;
-    afrax = NULL;
-    abstx = NULL;
-    moovx = NULL;
-    uuidx = NULL;
-    moofx = NULL;
-    mdatx = NULL;
-    metax = NULL;
-    freex = NULL;
-    skipx = NULL;
-    mfrax = NULL;
+    file_name = str;
 }
 
 F4vFileParser::~F4vFileParser()
 {
-    for(vector<F4vBoxAtom*>::iterator it =f4v_atomes.begin(); it != f4v_atomes.end(); it++) {
+    for(vector<F4vBox*>::iterator it =f4v_boxes.begin(); it != f4v_boxes.end(); it++) {
         delete *it;
     }
 }
@@ -74,7 +59,7 @@ int F4vFileParser::initialize()
 {
     int ret = ERROR_SUCCESS;
     
-    if ((fp = fopen(name.c_str(), "r")) == NULL) {
+    if ((fp = fopen(file_name.c_str(), "r")) == NULL) {
         ret = ERROR_SYSTEM_OPEN_FAILED;
         f4v_error("open the file %s failed, ret=%d", name.c_str(), ret);
         return ret;
@@ -94,11 +79,6 @@ int F4vFileParser:: start()
 
     if ((ret = read(0, get_filesize())) != ERROR_SUCCESS) {
         f4v_error("read the file %s error, ret=%d", name.c_str(), ret);
-        return ret;
-    }
-
-    if ((ret = parse()) != ERROR_SUCCESS) {
-        f4v_error("parse the box from the file %s error, ret=%d", name.c_str(), ret);
         return ret;
     }
     
@@ -165,8 +145,287 @@ int F4vFileParser::read(uint64_t start, uint64_t end)
         int32_t type = f4v_bytes_to_uint32(&head[4], 4);
         // get the box end position
         uint64_t ep = sp + size;
+
+        F4vBox* fb = NULL;
+        switch(type){
+            case ftyp:
+                fb = new FtypBox(sp, size, type, header_size, ep);
+                break;
+            case pdin:
+                fb = new PdinBox(sp, size, type, header_size, ep);
+                break;
+            case afra:
+                fb = new AfraBox(sp, size, type, header_size, ep);
+                break;
+            case abst:
+                fb = new AbstBox(sp, size, type, header_size, ep);
+                break;
+            case moov:
+                fb = new MoovBox(sp, size, type, header_size, ep);
+                break;
+            case uuid:
+                fb = new UuidBox(sp, size, type, header_size, ep);
+                break;
+            case moof:
+                fb = new MoofBox(sp, size, type, header_size, ep);
+                break;
+            case mdat:
+                fb = new MdatBox(sp, size, type, header_size, ep);
+                break;
+            case meta:
+                fb = new MetaBox(sp, size, type, header_size, ep);
+                break;
+            case frde:
+                fb = new FreeBox(sp, size, type, header_size, ep);
+                break;
+            case skip:
+                fb = new SkipBox(sp, size, type, header_size, ep);
+                break;
+            case mfra:
+                fb  = new MfraBox(sp, size, type, header_size, ep);
+                break;
+            default:
+                break;
+        }
+        assert(fb != NULL);
+
+        if ((ret = fb->initialize(fp)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        if ((ret = add(fb)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        ::fseek(fp, ep, SEEK_SET);
+    }
+
+    return ret;
+}
+
+int F4vFileParser::add(F4vBox* fb)
+{
+    int ret = ERROR_SUCCESS;
+
+    vector<F4vBox*>::iterator it;
+    if((it = ::find(f4v_boxes.begin(), f4v_boxes.end(), fb)) != f4v_boxes.end()) {
+        return ret;
+    }
+    f4v_boxes.push_back(fb);
+    
+    return ret;
+}
+
+int F4vFileParser::parse_pdin(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_afra(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_abst(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_moov(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    MoovBox* mb = dynamic_cast<MoovBox*>(pfb);
+    mb->read_buf(buf, size);
+
+    return ret;
+}
+
+int F4vFileParser::parse_uuid(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_moof(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_mdat(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_meta(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_frde(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_skip(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+int F4vFileParser::parse_mfra(F4vBox** ppfb)
+{
+    int ret = ERROR_SUCCESS;
+    
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->hs;
+    ::fseek(fp, pfb->start + pfb->hs, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    return ret;
+}
+
+
+/*
+int F4vFileParser::read(uint64_t start, uint64_t end)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ::fseek(fp, start, SEEK_SET);
+    if (end <= ftell(fp)) {
+        ret = ERROR_END_POSITION;
+        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
+        return ret;
+    }
+
+    while(ftell(fp) < end) {
+        // get the box start position
+        uint64_t sp = ftell(fp);
+
+        // read box header
+        unsigned char head[BOX_HEADER_SIZE];
+        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
+            ret = ERROR_SYSTEM_READ_FAILED;
+            f4v_error("read box header error, ret=%d", ret);
+        }
         
-        F4vBoxAtom* fb = NULL;
+        uint32_t header_size = -1;
+        uint64_t size = -1;
+
+        uint32_t temp = 0;
+        char* pp = (char*)&temp;
+        pp[3] = head[0];
+        pp[2] = head[1];
+        pp[1] = head[2];
+        pp[0] = head[3];
+
+        // get the box size
+        if(temp == 1) {
+            char extend[BOX_EXTENDED_SIZE];
+            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
+                ret = ERROR_READ_BOX_HEADER_FAILED;
+                f4v_error("read the box header extended size error, ret=%d", ret);
+                return ret;
+            }
+            pp = (char*)&(size);
+            pp[7] = extend[0];
+            pp[6] = extend[1];
+            pp[5] = extend[2];
+            pp[4] = extend[3];
+            pp[3] = extend[4];
+            pp[2] = extend[5];
+            pp[1] = extend[6];
+            pp[0] = extend[7];
+
+            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
+        } else {
+            header_size = BOX_HEADER_SIZE;
+            size = temp;
+        }
+
+        // get the box type
+        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
+        // get the box end position
+        uint64_t ep = sp + size;
+        
+        F4vBox* fb = NULL;
         switch(type){
             case ftyp:
                 fb = new FtypBox(sp, size, type, header_size, ep, 0, false);
@@ -405,397 +664,40 @@ int F4vFileParser::read(uint64_t start, uint64_t end)
 
     return ret;
 }
+*/
 
-int F4vFileParser::read2(uint64_t start, uint64_t end)
+int F4vFileParser::parse_moov(F4vBox** ppfb)
 {
     int ret = ERROR_SUCCESS;
-    
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
-        ret = ERROR_END_POSITION;
-        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
-        return ret;
-    }
-
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
-        uint32_t header_size = -1;
-        uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
-        }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
-        
-        switch(type){
-            case ftyp:
-                ftypx = new FtypBox(sp, size, type, header_size, ep, 0, false);
-                f4v_atomes.push_back(ftypx);
-                break;
-            case pdin:
-                pdinx = new PdinBox(sp, size, type, header_size, ep, 0, false);
-                set_vecbox(pdinx);
-                break;
-            case afra:
-                afrax = new AfraBox(sp, size, type, header_size, ep, 0, false);
-                set_vecbox(afrax);
-                break;
-            case abst:
-                abstx = new AbstBox(sp, size, type, header_size, ep, header_size, true);
-                set_vecbox(abstx);
-                break;
-            case moov:
-                moovx = new MoovBox(sp, size, type, header_size, ep, header_size, true);
-                set_vecbox(moovx);
-                read_moovx();
-                break;
-            case uuid:
-                uuidx = new UuidBox(sp, size, type, header_size, ep, 0, false);
-                set_vecbox(uuidx);
-                break;
-            case moof:
-                moofx = new MoofBox(sp, size, type, header_size, ep, header_size, true);
-                set_vecbox(moofx);
-                break;
-            case mdat:
-                mdatx = new MdatBox(sp, size, type, header_size, ep, 0, false);
-                set_vecbox(mdatx);
-                break;
-            case meta:
-                metax = new MetaBox(sp, size, type, header_size, ep, header_size, true);
-                set_vecbox(metax);
-                break;
-            case frde:
-                freex = new FreeBox(sp, size, type, header_size, ep, 0, false);
-                set_vecbox(freex);
-                break;
-            case skip:
-                skipx = new SkipBox(sp, size, type, header_size, ep, 0, false);
-                set_vecbox(skipx);
-                break;
-            case mfra:
-                mfrax  = new MfraBox(sp, size, type, header_size, ep, header_size, true);
-                set_vecbox(mfrax);
-                break;
-            default:
-                break;
-        }
-
-        ::fseek(fp, ep, SEEK_SET);
-    }
 
     return ret;
 }
 
-int F4vFileParser::set_vecbox(F4vBoxAtom* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBoxAtom*>::iterator it;
-    if((it = ::find(f4v_atomes.begin(), f4v_atomes.end(), fb)) != f4v_atomes.end()) {
-        return ret;
-    }
-    f4v_atomes.push_back(fb);
-    
-    return ret;
-}
-
-int F4vFileParser::read_ftypx()
+int F4vFileParser::parse_mvhd(F4vBox** ppfb)
 {
     int ret = ERROR_SUCCESS;
     
-    int size = ftypx->size - ftypx->header_size;
-    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    F4vBox* pfb = *ppfb;
+    int size = pfb->size - pfb->header_size;
+    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
     ::fread(buf, 1, size, fp);
 
-    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
-    return ret;
-}
-
-int F4vFileParser::read_pdinx()
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-int F4vFileParser::read_afrax()
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-int F4vFileParser::read_abstx()
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-int F4vFileParser::read_moovx()
-{
-    int ret = ERROR_SUCCESS;
-
-    if ((ret = moovx->read(fp, moovx->start + moovx->header_size, moovx->end)) != ERROR_SUCCESS) {
-        f4v_error("read the moovx failed. ret=%d", ret);
-        return ret;
-    }
-
-    return ret;
-}
-
-int F4vFileParser::read_uuidx()
-{
-    int ret = ERROR_SUCCESS;
-    
-    int size = ftypx->size - ftypx->header_size;
-    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-
-    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
-    return ret;
-}
-
-int F4vFileParser::read_moofx()
-{
-    int ret = ERROR_SUCCESS;
-
-    if ((ret = moofx->read(fp, moofx->start + moofx->header_size, moofx->end)) != ERROR_SUCCESS) {
-        f4v_error("read the moofx failed. ret=%d", ret);
-        return ret;
-    }
-
-    return ret;
-}
-
-int F4vFileParser::read_mdatx()
-{
-    int ret = ERROR_SUCCESS;
-    
-    int size = ftypx->size - ftypx->header_size;
-    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-
-    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
-    return ret;
-}
-
-int F4vFileParser::read_metax()
-{
-    int ret = ERROR_SUCCESS;
-    
-    int size = ftypx->size - ftypx->header_size;
-    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-
-    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
-    return ret;
-}
-
-int F4vFileParser::read_freex()
-{
-    int ret = ERROR_SUCCESS;
-    
-    int size = ftypx->size - ftypx->header_size;
-    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-
-    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
-    return ret;
-}
-
-int F4vFileParser::read_skipx()
-{
-    int ret = ERROR_SUCCESS;
-    
-    int size = ftypx->size - ftypx->header_size;
-    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-
-    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
-    return ret;
-}
-
-int F4vFileParser::read_mfrax()
-{
-    int ret = ERROR_SUCCESS;
-    
-    int size = ftypx->size - ftypx->header_size;
-    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-
-    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ftypx->compatible_brands = ss.str();
-
-    return ret;
-}
-
-int F4vFileParser::parse()
-{
-    int ret = ERROR_SUCCESS;
-    vector<F4vBoxAtom*>::iterator it;
-    for (it = f4v_atomes.begin(); it != f4v_atomes.end(); it++) {
-        F4vBoxAtom* fm = *it;
-        switch (fm->type) {
-            case ftyp:
-                parse_ftyp(&fm);
-                break;
-            case moov:
-                parse_moov(&fm);
-                break;
-            case mvhd:
-                parse_mvhd(&fm);
-                break;
-            case trak:
-                parse_trak(&fm);
-                break;
-            case tkhd:
-                parse_tkhd(&fm);
-                break;
-            case mdia:
-                parse_mdia(&fm);
-                break;
-            case mdhd:
-                parse_mdhd(&fm);
-                break;
-            case hdlr:
-                parse_hdlr(&fm);
-                break;
-            case minf:
-                parse_minf(&fm);
-                break;
-            case vmhd:
-                parse_vmhd(&fm);
-                break;
-            case dinf:
-                parse_dinf(&fm);
-                break;
-            case dref:
-                parse_dref(&fm);
-                break;
-            case url:
-                parse_url(&fm);
-                break;
-            case stbl:
-                parse_stbl(&fm);
-                break;
-            case stsd:
-                parse_stsd(&fm);
-                break;
-            case smhd:
-                parse_smhd(&fm);
-                break;
-            default:
-                break;
-        }
-    }
-        
-
-    if ((ret = parse_sample()) != ERROR_SUCCESS) {
-        f4v_error("parse sample failed, ret=%d", ret);
-        return ret;
+    MvhdBox* mb = dynamic_cast<MvhdBox*>(pfb);
+    mb->version = f4v_bytes_to_uint32(buf, 1);
+    mb->flags = f4v_bytes_to_uint32(&buf[1], 3);
+    if (mb->version == 0) {
+        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 4);
+        mb->modification_time = f4v_bytes_to_uint32(&buf[8], 4);
+        mb->timescale = f4v_bytes_to_uint32(&buf[12], 4);
+        mb->duration = f4v_bytes_to_uint32(&buf[16], 4);
+        mb->rate = f4v_bytes_to_uint32(&buf[20], 2) + (float)f4v_bytes_to_uint32(&buf[22], 2)/10;
+    } else {
+        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 8);
+        mb->modification_time = f4v_bytes_to_uint32(&buf[12], 8);
+        mb->timescale = f4v_bytes_to_uint32(&buf[20], 4);
+        mb->duration = f4v_bytes_to_uint32(&buf[24], 8);
+        mb->rate = f4v_bytes_to_uint32(&buf[32], 2) + (float)f4v_bytes_to_uint32(&buf[34], 2)/10;
     }
 
     return ret;
@@ -805,9 +707,9 @@ int F4vFileParser::show()
 {
     int ret = ERROR_SUCCESS;
     
-    vector<F4vBoxAtom*>::iterator it;
+    vector<F4vBox*>::iterator it;
     for (it = f4v_atomes.begin(); it != f4v_atomes.end(); it++) {
-        F4vBoxAtom* fm = *it;
+        F4vBox* fm = *it;
         fm->display();
     }
 
@@ -906,62 +808,13 @@ int F4vFileParser::parse_sample()
     return ret;
 }
 
-void F4vFileParser::parse_ftyp(F4vBoxAtom** ppfb)
-{
-    F4vBoxAtom* pfb = *ppfb;
-    int size = pfb->size - pfb->header_size;
-    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-    
-    FtypBox* ft = dynamic_cast<FtypBox*>(pfb);
-    ft->major_brand = f4v_bytes_to_uint32(buf, 4);
-    ft->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
-
-    stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
-    }
-    ft->compatible_brands = ss.str();
-}
-
-void F4vFileParser::parse_moov(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_trak(F4vBox** ppfb)
 {
 }
 
-void F4vFileParser::parse_mvhd(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_tkhd(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
-    int size = pfb->size - pfb->header_size;
-    ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
-
-    MvhdBox* mb = dynamic_cast<MvhdBox*>(pfb);
-    mb->version = f4v_bytes_to_uint32(buf, 1);
-    mb->flags = f4v_bytes_to_uint32(&buf[1], 3);
-    if (mb->version == 0) {
-        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 4);
-        mb->modification_time = f4v_bytes_to_uint32(&buf[8], 4);
-        mb->timescale = f4v_bytes_to_uint32(&buf[12], 4);
-        mb->duration = f4v_bytes_to_uint32(&buf[16], 4);
-        mb->rate = f4v_bytes_to_uint32(&buf[20], 2) + (float)f4v_bytes_to_uint32(&buf[22], 2)/10;
-    } else {
-        mb->creation_time = f4v_bytes_to_uint32(&buf[4], 8);
-        mb->modification_time = f4v_bytes_to_uint32(&buf[12], 8);
-        mb->timescale = f4v_bytes_to_uint32(&buf[20], 4);
-        mb->duration = f4v_bytes_to_uint32(&buf[24], 8);
-        mb->rate = f4v_bytes_to_uint32(&buf[32], 2) + (float)f4v_bytes_to_uint32(&buf[34], 2)/10;
-    }
-}
-
-void F4vFileParser::parse_trak(F4vBoxAtom** ppfb)
-{
-}
-
-void F4vFileParser::parse_tkhd(F4vBoxAtom** ppfb)
-{
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -983,13 +836,13 @@ void F4vFileParser::parse_tkhd(F4vBoxAtom** ppfb)
     
 }
 
-void F4vFileParser::parse_mdia(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_mdia(F4vBox** ppfb)
 {
 }
 
-void F4vFileParser::parse_mdhd(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_mdhd(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1010,9 +863,9 @@ void F4vFileParser::parse_mdhd(F4vBoxAtom** ppfb)
     }
 }
 
-void F4vFileParser::parse_hdlr(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_hdlr(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1023,13 +876,13 @@ void F4vFileParser::parse_hdlr(F4vBoxAtom** ppfb)
     hb->handler_type = f4v_bytes_to_uint32(&buf[8], 4);
 }
 
-void F4vFileParser::parse_minf(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_minf(F4vBox** ppfb)
 {
 }
 
-void F4vFileParser::parse_vmhd(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_vmhd(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1044,13 +897,13 @@ void F4vFileParser::parse_vmhd(F4vBoxAtom** ppfb)
     vb->op_color[2] = f4v_bytes_to_uint32(&buf[10], 2);
 }
 
-void F4vFileParser::parse_dinf(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_dinf(F4vBox** ppfb)
 {
 }
 
-void F4vFileParser::parse_dref(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_dref(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1062,9 +915,9 @@ void F4vFileParser::parse_dref(F4vBoxAtom** ppfb)
     db->entry_count = f4v_bytes_to_uint32(&buf[4], 4);
 }
 
-void F4vFileParser::parse_url(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_url(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1075,13 +928,13 @@ void F4vFileParser::parse_url(F4vBoxAtom** ppfb)
     ub->flags = f4v_bytes_to_uint32(&buf[1], 3);
 }
 
-void F4vFileParser::parse_stbl(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_stbl(F4vBox** ppfb)
 {
 }
 
-void F4vFileParser::parse_stsd(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_stsd(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1098,9 +951,9 @@ void F4vFileParser::parse_stsd(F4vBoxAtom** ppfb)
     }
 }
 
-SttsBox* F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
+SttsBox* F4vFileParser::parse_stts(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1120,9 +973,9 @@ SttsBox* F4vFileParser::parse_stts(F4vBoxAtom** ppfb)
     return sb;
 }
 
-CttsBox* F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
+CttsBox* F4vFileParser::parse_ctts(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1142,9 +995,9 @@ CttsBox* F4vFileParser::parse_ctts(F4vBoxAtom** ppfb)
     return cb;
 }
 
-StscBox* F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
+StscBox* F4vFileParser::parse_stsc(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1165,9 +1018,9 @@ StscBox* F4vFileParser::parse_stsc(F4vBoxAtom** ppfb)
     return sb;
 }
 
-StszBox* F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
+StszBox* F4vFileParser::parse_stsz(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1186,9 +1039,9 @@ StszBox* F4vFileParser::parse_stsz(F4vBoxAtom** ppfb)
     return sb;
 }
 
-StcoBox* F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
+StcoBox* F4vFileParser::parse_stco(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1206,9 +1059,9 @@ StcoBox* F4vFileParser::parse_stco(F4vBoxAtom** ppfb)
     return sb;
 }
 
-StssBox* F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
+StssBox* F4vFileParser::parse_stss(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1226,9 +1079,9 @@ StssBox* F4vFileParser::parse_stss(F4vBoxAtom** ppfb)
     return sb;
 }
 
-void F4vFileParser::parse_smhd(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_smhd(F4vBox** ppfb)
 {
-    F4vBoxAtom* pfb = *ppfb;
+    F4vBox* pfb = *ppfb;
     int size = pfb->size - pfb->header_size;
     ::fseek(fp, pfb->start + pfb->header_size, SEEK_SET);
     unsigned char buf[size];
@@ -1244,10 +1097,10 @@ void F4vFileParser::parse_smhd(F4vBoxAtom** ppfb)
     sb->balance = (float)f4v_bytes_to_uint32(&buf[4], 1) + (float)f4v_bytes_to_uint32(&buf[5], 1)/10;
 }
 
-void F4vFileParser::parse_free(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_free(F4vBox** ppfb)
 {
 }
 
-void F4vFileParser::parse_mdat(F4vBoxAtom** ppfb)
+void F4vFileParser::parse_mdat(F4vBox** ppfb)
 {
 }
