@@ -32,22 +32,49 @@ private:
     std::vector<F4vBoxAtom*> f4v_atomes;
     std::vector<std::vector<F4vSample> > f4v_vvs;
 private:
+    FtypBox* ftypx;
+    PdinBox* pdinx;
+    AfraBox* afrax;
+    AbstBox* abstx;
+    MoovBox* moovx;
+    UuidBox* uuidx;
+    MoofBox* moofx;
+    MdatBox* mdatx;
+    MetaBox* metax;
+    FreeBox* freex;
+    SkipBox* skipx;
+    MfraBox* mfrax;
+/*    
     StscBox* stscb;
     StszBox* stszb;
     SttsBox* sttsb;
     StcoBox* stcob;
     StssBox* stssb;
     CttsBox* cttsb;
+*/
 public:
     F4vFileParser(std::string str);
     virtual ~F4vFileParser();
 public:
     int initialize();
-    
     int start();
 // IF4vParser
 private:
     int read(uint64_t start, uint64_t end);
+    int read2(uint64_t start, uint64_t end);
+    int set_vecbox(F4vBoxAtom* fb);
+    int read_ftypx();
+    int read_pdinx();
+    int read_afrax();
+    int read_abstx();
+    int read_moovx();
+    int read_uuidx();
+    int read_moofx();
+    int read_mdatx();
+    int read_metax();
+    int read_freex();
+    int read_skipx();
+    int read_mfrax();
     int parse();
 public:
     int show();

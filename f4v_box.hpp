@@ -130,7 +130,14 @@ public:
 class MoovBox : public F4vBoxAtom
 {
 public:
-
+    MvhdBox* mvhdx;
+    std::vector<TrakBox*>trakxv;
+    MvexBox* mvexx;
+    AuthBox* authx;
+    TitlBox* titlx;
+    DscpBox* dscpx;
+    CprtBox* cprtx;
+    UdtaBox* udtax;
 public:
     MoovBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MoovBox();
@@ -158,6 +165,9 @@ public:
 class TrakBox : public F4vBoxAtom
 {
 public:
+    TkhdBox* tkhdx;
+    EdtsBox* edtsx;
+    MdiaBox* mdiax;
 public:
     TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~TrakBox();
@@ -184,7 +194,7 @@ public:
 class EdtsBox : public F4vBoxAtom
 {
 public:
-
+    ElstBox* elstx;
 public:
     EdtsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~EdtsBox();
@@ -206,7 +216,9 @@ public:
 class MdiaBox : public F4vBoxAtom
 {
 public:
-
+    MdhdBox* mdhdx;
+    HdlrBox* hdlrx;
+    MinfBox* minfx;
 public:
     MdiaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MdiaBox();
@@ -244,7 +256,12 @@ public:
 class MinfBox : public F4vBoxAtom
 {
 public:
-   
+    VmhdBox* vmhdx;
+    SmhdBox* smhdx;
+    HmhdBox* hmhdx;
+    NmhdBox* nmhdx;
+    DinfBox* dinfx;
+    StblBox* stblx;
 public:
     MinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MinfBox();
@@ -304,7 +321,7 @@ public:
 class DinfBox : public F4vBoxAtom
 {
 public:
-
+    DrefBox* drefx;
 public:
     DinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~DinfBox();
@@ -318,6 +335,7 @@ public:
     uint32_t version;
     uint32_t flags;
     uint32_t entry_count;
+    UrlBox* urlx
 public:
     DrefBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~DrefBox();
@@ -340,7 +358,15 @@ public:
 class StblBox : public F4vBoxAtom
 {
 public:
-
+    StsdBox* stsdx;
+    SttsBox* sttsx;
+    CttsBox* cttsx;
+    StscBox* stscx;
+    StszBox* stszx;
+    StcoBox* stcox;
+    Co64Box* co64x;
+    StssBox* stssx;
+    SdtpBox* sdtpx;
 public:
     StblBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~StblBox();
@@ -490,7 +516,8 @@ public:
 class MvexBox : public F4vBoxAtom
 {
 public:
-
+    MehdBox* mehdx;
+    TrexBox* trexx;
 public:
     MvexBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic);
     virtual ~MvexBox();

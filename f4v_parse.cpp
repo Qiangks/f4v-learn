@@ -47,6 +47,21 @@ F4vFileParser::F4vFileParser(std::string str)
 {
     name = str;
     is_eof = false;
+
+
+    ftypx = NULL;
+    pdinx = NULL;
+    afrax = NULL;
+    abstx = NULL;
+    moovx = NULL;
+    uuidx = NULL;
+    moofx = NULL;
+    mdatx = NULL;
+    metax = NULL;
+    freex = NULL;
+    skipx = NULL;
+    mfrax = NULL;
+    
     stscb = NULL;
     stscb = NULL;
     stszb = NULL;
@@ -391,6 +406,321 @@ int F4vFileParser::read(uint64_t start, uint64_t end)
 
         assert(fb != NULL);
 
+        if (fb->is_container) {
+            if (( ret = read(fb->start + fb->offset, fb->end)) != ERROR_SUCCESS) {
+                f4v_error("read the box %s error, ret=%d", f4v_int2str(fb->type).c_str(), ret);
+                return ret;
+            }
+        }
+
+        ::fseek(fp, fb->end, SEEK_SET);
+    }
+
+    return ret;
+}
+
+int F4vFileParser::read2(uint64_t start, uint64_t end)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ::fseek(fp, start, SEEK_SET);
+    if (end <= ftell(fp)) {
+        ret = ERROR_END_POSITION;
+        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
+        return ret;
+    }
+
+    while(ftell(fp) < end) {
+        // get the box start position
+        uint64_t sp = ftell(fp);
+
+        // read box header
+        unsigned char head[BOX_HEADER_SIZE];
+        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
+            ret = ERROR_SYSTEM_READ_FAILED;
+            f4v_error("read box header error, ret=%d", ret);
+        }
+        
+        uint32_t header_size = -1;
+        uint64_t size = -1;
+
+        uint32_t temp = 0;
+        char* pp = (char*)&temp;
+        pp[3] = head[0];
+        pp[2] = head[1];
+        pp[1] = head[2];
+        pp[0] = head[3];
+
+        // get the box size
+        if(temp == 1) {
+            char extend[BOX_EXTENDED_SIZE];
+            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
+                ret = ERROR_READ_BOX_HEADER_FAILED;
+                f4v_error("read the box header extended size error, ret=%d", ret);
+                return ret;
+            }
+            pp = (char*)&(size);
+            pp[7] = extend[0];
+            pp[6] = extend[1];
+            pp[5] = extend[2];
+            pp[4] = extend[3];
+            pp[3] = extend[4];
+            pp[2] = extend[5];
+            pp[1] = extend[6];
+            pp[0] = extend[7];
+
+            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
+        } else {
+            header_size = BOX_HEADER_SIZE;
+            size = temp;
+        }
+
+        // get the box type
+        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
+        // get the box end position
+        uint64_t ep = sp + size;
+        
+        switch(type){
+            case ftyp:
+                ftypx = new FtypBox(sp, size, type, header_size, ep, 0, false);
+                f4v_atomes.push_back(ftypx);
+                break;
+            case pdin:
+                pdinx = new PdinBox(sp, size, type, header_size, ep, 0, false);
+                set_vecbox(pdinx);
+                break;
+            case afra:
+                afrax = new AfraBox(sp, size, type, header_size, ep, 0, false);
+                set_vecbox(afrax);
+                break;
+            case abst:
+                abstx = new AbstBox(sp, size, type, header_size, ep, header_size, true);
+                set_vecbox(abstx);
+                break;
+            case asrt:
+                fb = new AsrtBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case afrt:
+                fb = new AfrtBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case moov:
+                moovx = new MoovBox(sp, size, type, header_size, ep, header_size, true);
+                set_vecbox(moovx);
+                break;
+            case mvhd:
+                fb = new MvhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case trak:
+                fb = new TrakBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case tkhd:
+                fb = new TkhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case edts:
+                fb = new EdtsBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case elst:
+                fb = new ElstBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case mdia:
+                fb = new MdiaBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case mdhd:
+                fb = new MdhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case hdlr:
+                fb = new HdlrBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case minf:
+                fb = new MinfBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case vmhd:
+                fb = new VmhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case smhd:
+                fb = new SmhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case hmhd:
+                fb = new HmhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case nmhd:
+                fb = new NmhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case dinf:
+                fb = new DinfBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case dref:
+                fb = new DrefBox(sp, size, type, header_size, ep, header_size + DREF_OFFSET, true);
+                break;
+            case url:
+                fb = new UrlBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case stbl:
+                fb = new StblBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case stsd:
+                fb = new StsdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case stts:
+                fb = new SttsBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case ctts:
+                fb = new CttsBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case stsc:
+                fb = new StscBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case stsz:
+                fb = new StszBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case stco:
+                fb = new StcoBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case co64:
+                fb = new Co64Box(sp, size, type, header_size, ep, 0, false);
+                break;
+            case stss:
+                fb = new StssBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case sdtp:
+                fb = new SdtpBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case mvex:
+                fb = new MvexBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case mehd:
+                fb = new MehdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case trex:
+                fb = new TrexBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case auth:
+                fb = new AuthBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case titl:
+                fb = new TitlBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case dscp:
+                fb = new DscpBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case cprt:
+                fb = new CprtBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case udta:
+                fb = new UdtaBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case uuid:
+                uuidx = new UuidBox(sp, size, type, header_size, ep, 0, false);
+                set_vecbox(uuidx);
+                break;
+            case moof:
+                moofx = new MoofBox(sp, size, type, header_size, ep, header_size, true);
+                set_vecbox(moofx);
+                break;
+            case mfhd:
+                fb = new MfhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case traf:
+                fb = new TrafBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case tfhd:
+                fb = new TfhdBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case trun:
+                fb = new TrunBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case mdat:
+                mdatx = new MdatBox(sp, size, type, header_size, ep, 0, false);
+                set_vecbox(mdatx);
+                break;
+            case meta:
+                metax = new MetaBox(sp, size, type, header_size, ep, header_size, true);
+                set_vecbox(metax);
+                break;
+            case ilst:
+                fb = new IlstBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case frde:
+                freex = new FreeBox(sp, size, type, header_size, ep, 0, false);
+                set_vecbox(freex);
+                break;
+            case skip:
+                skipx = new SkipBox(sp, size, type, header_size, ep, 0, false);
+                set_vecbox(skipx);
+                break;
+            case mfra:
+                mfrax  = new MfraBox(sp, size, type, header_size, ep, header_size, true);
+                set_vecbox(mfrax);
+                break;
+            case tfra:
+                fb = new TfraBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case mfro:
+                fb = new MfroBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case rtmp:
+                fb = new RtmpBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case amhp:
+                fb = new AmhpBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case amto:
+                fb = new AmtoBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case encv:
+                fb = new EncvBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case enca:
+                fb = new EncaBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case encr:
+                fb = new EncrBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case sinf:
+                fb = new SinfBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case frma:
+                fb = new FrmaBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case schm:
+                fb = new SchmBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case schi:
+                fb = new SchiBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case adkm:
+                fb = new AdkmBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case ahdr:
+                fb = new AhdrBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case aprm:
+                fb = new AprmBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case aeib:
+                fb = new AeibBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case akey:
+                fb = new AkeyBox(sp, size, type, header_size, ep, header_size, true);
+                break;
+            case aps:
+                fb = new ApsBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case flxs:
+                fb = new FlxsBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case asig:
+                fb = new AsigBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            case adaf:
+                fb = new AdafBox(sp, size, type, header_size, ep, 0, false);
+                break;
+            default:
+                break;
+        }
+
+        assert(fb != NULL);
+
         vector<F4vBoxAtom*>::iterator it;
         if((it = ::find(f4v_atomes.begin(), f4v_atomes.end(), fb)) == f4v_atomes.end()) {
             f4v_atomes.push_back(fb);
@@ -405,6 +735,226 @@ int F4vFileParser::read(uint64_t start, uint64_t end)
 
         ::fseek(fp, fb->end, SEEK_SET);
     }
+
+    return ret;
+}
+
+int F4vFileParser::set_vecbox(F4vBoxAtom* fb)
+{
+    int ret = ERROR_SUCCESS;
+
+    vector<F4vBoxAtom*>::iterator it;
+    if((it = ::find(f4v_atomes.begin(), f4v_atomes.end(), fb)) != f4v_atomes.end()) {
+        return ret;
+    }
+    f4v_atomes.push_back(fb);
+    
+    return ret;
+}
+
+int F4vFileParser::read_ftypx()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_pdinx()
+{
+    int ret = ERROR_SUCCESS;
+
+    return ret;
+}
+
+int F4vFileParser::read_afrax()
+{
+    int ret = ERROR_SUCCESS;
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_abstx()
+{
+    int ret = ERROR_SUCCESS;
+
+    return ret;
+}
+
+int F4vFileParser::read_moovx()
+{
+    int ret = ERROR_SUCCESS;
+
+    if ((ret = read2(moovx->sp+moovx->header_size, moovx->ep)) != ERROR_SUCCESS) {
+        f4v_error("read the moov box failed. ret=%d", ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int F4vFileParser::read_uuidx()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_moofx()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_mdatx()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_metax()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_freex()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_skipx()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
+
+    return ret;
+}
+
+int F4vFileParser::read_mfrax()
+{
+    int ret = ERROR_SUCCESS;
+    
+    int size = ftypx->size - ftypx->header_size;
+    ::fseek(fp, ftypx->start + ftypx->header_size, SEEK_SET);
+    unsigned char buf[size];
+    ::fread(buf, 1, size, fp);
+
+    ftypx->major_brand = f4v_bytes_to_uint32(buf, 4);
+    ftypx->minor_version = f4v_bytes_to_uint32(&buf[4], 4);
+
+    stringstream ss;
+    for(int i = 8; i < size; i++) {
+        ss << buf[i];
+    }
+    ftypx->compatible_brands = ss.str();
 
     return ret;
 }
