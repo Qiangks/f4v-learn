@@ -5,10 +5,6 @@
 #ifndef F4V_PARSEER_F4V_TYPE_HPP
 #define F4V_PARSEER_F4V_TYPE_HPP
 
-#define BOX_HEADER_SIZE       8
-#define BOX_EXTENDED_SIZE   8
-#define DREF_OFFSET               8
-
 enum BOXTYPE {
     ftyp = 0x66747970, pdin = 0x7064696E, afra = 0x61667261, abst = 0x61627374, asrt = 0x61737274, afrt = 0x61667274,
     moov = 0x6D6F6F76, mvhd = 0x6D766864, trak = 0x7472616B, tkhd = 0x746B6864, edts = 0x65647473, elst = 0x656C7374,
@@ -27,8 +23,6 @@ enum BOXTYPE {
     drpt = 0x64727074, href = 0x68726566, tbox = 0x74626F78, 
     avc1 = 0x61766331,
 };
-
-
 
 #define ERROR_SUCCESS       0
 

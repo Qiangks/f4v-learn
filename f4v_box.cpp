@@ -128,7 +128,6 @@ int PdinBox::initialize(FILE** fp)
 
 void PdinBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -164,7 +163,6 @@ int AfraBox::initialize(FILE** fp)
 
 void AfraBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -200,7 +198,6 @@ int AbstBox::initialize(FILE** fp)
 
 void AbstBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -236,7 +233,6 @@ int AsrtBox::initialize(FILE** fp)
 
 void AsrtBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -272,7 +268,6 @@ int AfrtBox::initialize(FILE** fp)
 
 void AfrtBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -708,7 +703,6 @@ int EdtsBox::add(F4vBox* fb)
 
 void EdtsBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -744,7 +738,6 @@ int ElstBox::initialize(FILE** fp)
 
 void ElstBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -845,7 +838,6 @@ int MdiaBox::add(F4vBox* fb)
 
 void MdiaBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -1170,7 +1162,6 @@ int HmhdBox::initialize(FILE** fp)
 
 void HmhdBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -1206,7 +1197,6 @@ int NmhdBox::initialize(FILE** fp)
 
 void NmhdBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -1881,7 +1871,6 @@ int Co64Box::initialize(FILE** fp)
 
 void Co64Box::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -1962,7 +1951,6 @@ int SdtpBox::initialize(FILE** fp)
 
 void SdtpBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2060,7 +2048,6 @@ int MvexBox::add(F4vBox* fb)
 
 void MvexBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2096,7 +2083,6 @@ int MehdBox::initialize(FILE** fp)
 
 void MehdBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2132,7 +2118,6 @@ int TrexBox::initialize(FILE** fp)
 
 void TrexBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2168,7 +2153,6 @@ int AuthBox::initialize(FILE** fp)
 
 void AuthBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2204,7 +2188,6 @@ int TitlBox::initialize(FILE** fp)
 
 void TitlBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2240,7 +2223,6 @@ int DscpBox::initialize(FILE** fp)
 
 void DscpBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2276,7 +2258,6 @@ int CprtBox::initialize(FILE** fp)
 
 void CprtBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2312,7 +2293,6 @@ int UdtaBox::initialize(FILE** fp)
 
 void UdtaBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2348,7 +2328,6 @@ int UuidBox::initialize(FILE** fp)
 
 void UuidBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2445,7 +2424,6 @@ int MoofBox::add(F4vBox* fb)
 
 void MoofBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2481,7 +2459,6 @@ int MfhdBox::initialize(FILE** fp)
 
 void MfhdBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2517,7 +2494,6 @@ int TrafBox::initialize(FILE** fp)
 
 void TrafBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2553,7 +2529,6 @@ int TfhdBox::initialize(FILE** fp)
 
 void TfhdBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2589,7 +2564,6 @@ int TrunBox::initialize(FILE** fp)
 
 void TrunBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2662,7 +2636,6 @@ int MetaBox::initialize(FILE** fp)
 
 void MetaBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2698,7 +2671,6 @@ int IlstBox::initialize(FILE** fp)
 
 void IlstBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2771,7 +2743,6 @@ int SkipBox::initialize(FILE** fp)
 
 void SkipBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2807,7 +2778,6 @@ int MfraBox::initialize(FILE** fp)
 
 void MfraBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2843,7 +2813,6 @@ int TfraBox::initialize(FILE** fp)
 
 void TfraBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2879,7 +2848,6 @@ int MfroBox::initialize(FILE** fp)
 
 void MfroBox::display()
 {
-
     if (container.size() == 0) {
         return;
     }
@@ -2890,252 +2858,3 @@ void MfroBox::display()
     }
 }
 
-
-/*
-RtmpBox::RtmpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-RtmpBox::~RtmpBox()
-{
-}
-
-void RtmpBox::display()
-{
-}
-
-AmhpBox::AmhpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AmhpBox::~AmhpBox()
-{
-}
-
-void AmhpBox::display()
-{
-}
-
-AmtoBox::AmtoBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AmtoBox::~AmtoBox()
-{
-}
-
-void AmtoBox::display()
-{
-}
-
-EncvBox::EncvBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-EncvBox::~EncvBox()
-{
-}
-
-void EncvBox::display()
-{
-}
-
-EncaBox::EncaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-EncaBox::~EncaBox()
-{
-}
-
-void EncaBox::display()
-{
-}
-
-EncrBox::EncrBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-EncrBox::~EncrBox()
-{
-}
-
-void EncrBox::display()
-{
-}
-
-SinfBox::SinfBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-SinfBox::~SinfBox()
-{
-}
-
-void SinfBox::display()
-{
-}
-
-FrmaBox::FrmaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-FrmaBox::~FrmaBox()
-{
-}
-
-void FrmaBox::display()
-{
-}
-
-SchmBox::SchmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-SchmBox::~SchmBox()
-{
-}
-
-void SchmBox::display()
-{
-}
-
-SchiBox::SchiBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-SchiBox::~SchiBox()
-{
-}
-
-void SchiBox::display()
-{
-}
-
-AdkmBox::AdkmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AdkmBox::~AdkmBox()
-{
-}
-
-void AdkmBox::display()
-{
-}
-
-AhdrBox::AhdrBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AhdrBox::~AhdrBox()
-{
-}
-
-void AhdrBox::display()
-{
-}
-
-AprmBox::AprmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AprmBox::~AprmBox()
-{
-}
-
-void AprmBox::display()
-{
-}
-
-AeibBox::AeibBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AeibBox::~AeibBox()
-{
-}
-
-void AeibBox::display()
-{
-}
-
-AkeyBox::AkeyBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AkeyBox::~AkeyBox()
-{
-}
-
-void AkeyBox::display()
-{
-}
-
-ApsBox::ApsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-ApsBox::~ApsBox()
-{
-}
-
-void ApsBox::display()
-{
-}
-
-FlxsBox::FlxsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-FlxsBox::~FlxsBox()
-{
-}
-
-void FlxsBox::display()
-{
-}
-
-AsigBox::AsigBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AsigBox::~AsigBox()
-{
-}
-
-void AsigBox::display()
-{
-}
-
-AdafBox::AdafBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-: F4vBox(start_position, size, type, header_size, end_position)
-{
-}
-
-AdafBox::~AdafBox()
-{
-}
-
-void AdafBox::display()
-{
-}
-*/

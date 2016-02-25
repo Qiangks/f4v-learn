@@ -30,6 +30,8 @@ F4vFileParser::~F4vFileParser()
     for(vector<F4vBox*>::iterator it =f4v_boxes.begin(); it != f4v_boxes.end(); it++) {
         delete *it;
     }
+    
+    delete fp;
 }
 
 int F4vFileParser::initialize()
@@ -191,10 +193,9 @@ int F4vFileParser::parse_sample()
         std::vector<F4vSample> f4v_samples;
 
         uint32_t total_chunk = stcob->offset_count;
-
         F4vChunk f4v_chunk[total_chunk];
 
-        // restore the chunk---->sample list
+        // restore the chunk list
         uint32_t last_chk_no = total_chunk + 1;
         for (int i = stscb->count - 1; i >= 0; --i) {
             uint32_t beg_real_chkno = stscb->stsc_records[i].first_chunk;
@@ -206,7 +207,7 @@ int F4vFileParser::parse_sample()
             last_chk_no = beg_real_chkno; 
         }
 
-        // restore the sample---->chunk list
+        // restore the sample list
         uint32_t sam_index = 0;
         for(uint32_t i = 0; i < total_chunk; i++) {
             f4v_chunk[i].first_sample_index = sam_index;
@@ -261,7 +262,6 @@ int F4vFileParser::parse_sample()
 int F4vFileParser::show()
 {
     int ret = ERROR_SUCCESS;
-
 
     vector<F4vBox*>::iterator it;
     for (it = f4v_boxes.begin(); it != f4v_boxes.end(); it++) {

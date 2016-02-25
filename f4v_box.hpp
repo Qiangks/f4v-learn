@@ -165,6 +165,7 @@ public:
 class TrakBox : public F4vBox
 {
 public:
+
 public:
     TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
     virtual ~TrakBox();
@@ -184,7 +185,6 @@ public:
     uint64_t modification_time;
     uint32_t trak_id;
     uint64_t duration;
-
 public:
     TkhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~TkhdBox();
@@ -196,6 +196,7 @@ public:
 class EdtsBox : public F4vBox
 {
 public:
+
 public:
     EdtsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~EdtsBox();
@@ -221,6 +222,7 @@ public:
 class MdiaBox : public F4vBox
 {
 public:
+
 public:
     MdiaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~MdiaBox();
@@ -266,6 +268,7 @@ public:
 class MinfBox : public F4vBox
 {
 public:
+
 public:
     MinfBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~MinfBox();
@@ -332,6 +335,7 @@ public:
 class DinfBox : public F4vBox
 {
 public:
+
 public:
     DinfBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~DinfBox();
@@ -374,6 +378,7 @@ public:
 class StblBox : public F4vBox
 {
 public:
+
 public:
     StblBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~StblBox();
@@ -535,6 +540,7 @@ public:
 class MvexBox : public F4vBox
 {
 public:
+
 public:
     MvexBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~MvexBox();
@@ -644,6 +650,7 @@ public:
 class MoofBox : public F4vBox
 {
 public:
+
 public:
     MoofBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed);
     virtual ~MoofBox();
@@ -669,7 +676,8 @@ public:
 
 class TrafBox : public F4vBox
 {
-public: 
+public:
+
 public:
     TrafBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~TrafBox();
@@ -797,218 +805,5 @@ public:
     virtual int initialize(FILE** fp);
     virtual void display();
 };
-
-
-/*
-// box in StsdBox
-class RtmpBox : public F4vBox
-{
-public:
-
-public:
-    RtmpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~RtmpBox();
-public:
-    virtual void display();
-};
-
-class AmhpBox : public F4vBox
-{
-public:
-
-public:
-    AmhpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AmhpBox();
-public:
-    virtual void display();
-};
-
-class AmtoBox : public F4vBox
-{
-public:
-
-public:
-    AmtoBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AmtoBox();
-public:
-    virtual void display();
-};
-
-class EncvBox : public F4vBox
-{
-public:
-
-public:
-    EncvBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~EncvBox();
-public:
-    virtual void display();
-};
-
-class EncaBox : public F4vBox
-{
-public:
-
-public:
-    EncaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~EncaBox();
-public:
-    virtual void display();
-};
-
-class EncrBox : public F4vBox
-{
-public:
-
-public:
-    EncrBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~EncrBox();
-public:
-    virtual void display();
-};
-
-class SinfBox : public F4vBox
-{
-public:
-
-public:
-    SinfBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~SinfBox();
-public:
-    virtual void display();
-};
-
-class FrmaBox : public F4vBox
-{
-public:
-
-public:
-    FrmaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~FrmaBox();
-public:
-    virtual void display();
-};
-
-class SchmBox : public F4vBox
-{
-public:
-
-public:
-    SchmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~SchmBox();
-public:
-    virtual void display();
-};
-
-class SchiBox : public F4vBox
-{
-public:
-
-public:
-    SchiBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~SchiBox();
-public:
-    virtual void display();
-};
-
-class AdkmBox : public F4vBox
-{
-public:
-
-public:
-    AdkmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AdkmBox();
-public:
-    virtual void display();
-};
-
-class AhdrBox : public F4vBox
-{
-public:
-
-public:
-    AhdrBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AhdrBox();
-public:
-    virtual void display();
-};
-
-class AprmBox : public F4vBox
-{
-public:
-
-public:
-    AprmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AprmBox();
-public:
-    virtual void display();
-};
-
-class AeibBox : public F4vBox
-{
-public:
-
-public:
-    AeibBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AeibBox();
-public:
-    virtual void display();
-};
-
-class AkeyBox : public F4vBox
-{
-public:
-
-public:
-    AkeyBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AkeyBox();
-public:
-    virtual void display();
-};
-
-class ApsBox : public F4vBox
-{
-public:
-
-public:
-    ApsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~ApsBox();
-public:
-    virtual void display();
-};
-
-class FlxsBox : public F4vBox
-{
-public:
-
-public:
-    FlxsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~FlxsBox();
-public:
-    virtual void display();
-};
-
-class AsigBox : public F4vBox
-{
-public:
-
-public:
-    AsigBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AsigBox();
-public:
-    virtual void display();
-};
-
-class AdafBox : public F4vBox
-{
-public:
-
-public:
-    AdafBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
-    virtual ~AdafBox();
-public:
-    virtual void display();
-};
-*/
 
 #endif //F4V_PARSEER_F4V_BOX_HPP

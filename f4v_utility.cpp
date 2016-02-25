@@ -3,10 +3,12 @@
 //
 
 #include <sstream>
-#include <stdio.h>
 #include "f4v_utility.hpp"
 #include "f4v_type.hpp"
 #include "f4v_log.hpp"
+
+#define BOX_HEADER_SIZE       8
+#define BOX_EXTENDED_SIZE   8
 
 using namespace std;
 

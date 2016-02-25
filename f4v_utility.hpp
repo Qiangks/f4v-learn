@@ -5,7 +5,6 @@
 #ifndef F4V_PARSEER_F4V_UTILITY_HPP
 #define F4V_PARSEER_F4V_UTILITY_HPP
 
-#include <string>
 #include <stdint.h>
 
 int get_box_header(FILE** fp, uint32_t& hs, uint32_t& type, uint64_t& size, uint64_t& sp, uint64_t& ep);
