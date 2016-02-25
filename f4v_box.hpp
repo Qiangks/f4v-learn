@@ -179,6 +179,7 @@ class TkhdBox : public F4vBox
 {
 public:
     uint32_t version;
+    uint32_t flags;
     uint64_t creation_time;
     uint64_t modification_time;
     uint32_t trak_id;
@@ -234,6 +235,7 @@ class MdhdBox : public F4vBox
 {
 public:
     uint32_t version;
+    uint32_t flags;
     uint64_t creation_time;
     uint64_t modification_time;
     uint32_t timescale;

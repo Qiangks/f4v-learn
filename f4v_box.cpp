@@ -589,15 +589,20 @@ int TkhdBox::initialize(FILE** fp)
 
     unsigned char* curr = buf;
     version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
     if (version == 0) {
         creation_time = f4v_bytes_to_uint32(&curr, 4);
         modification_time = f4v_bytes_to_uint32(&curr, 4);
         trak_id= f4v_bytes_to_uint32(&curr, 4);
+        // skip the reserved
+        curr = curr + 4;
         duration = f4v_bytes_to_uint32(&curr, 4);
     } else {
         creation_time = f4v_bytes_to_uint32(&curr, 8);
         modification_time = f4v_bytes_to_uint32(&curr, 8);
         trak_id = f4v_bytes_to_uint32(&curr, 4);
+        // skip the reserved
+        curr = curr + 4;
         duration = f4v_bytes_to_uint32(&curr, 8);
     }
 
@@ -871,6 +876,7 @@ int MdhdBox::initialize(FILE** fp)
 
     unsigned char* curr = buf;
     version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
     if (version == 0) {
         creation_time = f4v_bytes_to_uint32(&curr, 4);
         modification_time = f4v_bytes_to_uint32(&curr, 4);
