@@ -21,7 +21,7 @@ enum BOXTYPE {
     asig = 0x61736967, adaf = 0x61646166,
     styl = 0x7374796C, hlit = 0x686C6974, hclr = 0x68636C72, krok = 0x6B726F6B, dlay = 0x646C6179, drpo = 0x6472706F,
     drpt = 0x64727074, href = 0x68726566, tbox = 0x74626F78, 
-    avc1 = 0x61766331,
+    avc1 = 0x61766331, mp4a = 0x6D703461,
 };
 
 #define ERROR_SUCCESS       0

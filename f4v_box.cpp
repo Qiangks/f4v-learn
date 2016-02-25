@@ -24,7 +24,7 @@ int F4vSample::display()
 {
     int ret = ERROR_SUCCESS;
 
-    f4v_trace("sample: type=%s, size=%d, duration=%d, offset=%d, chunk index=%d, index in chunk=: %d",
+    f4v_trace("sample: id=%d, type=%s, size=%d, duration=%d, offset=%d, chunk index=%d, index in chunk=: %d", id,
         f4v_int2str(type).c_str(), size, duration, offset, chunk_index, index_in_chunk);
 
     return ret;
@@ -128,6 +128,8 @@ int PdinBox::initialize(FILE** fp)
 
 void PdinBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -163,6 +165,8 @@ int AfraBox::initialize(FILE** fp)
 
 void AfraBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -198,6 +202,8 @@ int AbstBox::initialize(FILE** fp)
 
 void AbstBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -233,6 +239,8 @@ int AsrtBox::initialize(FILE** fp)
 
 void AsrtBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -268,6 +276,8 @@ int AfrtBox::initialize(FILE** fp)
 
 void AfrtBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -703,6 +713,8 @@ int EdtsBox::add(F4vBox* fb)
 
 void EdtsBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -738,6 +750,8 @@ int ElstBox::initialize(FILE** fp)
 
 void ElstBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -838,6 +852,8 @@ int MdiaBox::add(F4vBox* fb)
 
 void MdiaBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -1162,6 +1178,8 @@ int HmhdBox::initialize(FILE** fp)
 
 void HmhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -1197,6 +1215,8 @@ int NmhdBox::initialize(FILE** fp)
 
 void NmhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -1593,6 +1613,74 @@ int StsdBox::initialize(FILE** fp)
     flags = f4v_bytes_to_uint32(&curr, 3);
     count = f4v_bytes_to_uint32(&curr, 4);
 
+    if ((ret = read(fp, sp + hs + 8, ep)) != ERROR_SUCCESS) {
+        f4v_error("read stsd box failed. ret=%d", ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int StsdBox::read(FILE** fp, uint64_t start, uint64_t end)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
+        ret = ERROR_END_POSITION;
+        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
+        return ret;
+    }
+
+    while(ftell(*fp) < end) {
+        uint32_t header_size = -1;
+        uint32_t type = -1;
+        uint64_t size = -1;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
+        }
+
+        F4vBox* fb = NULL;
+        switch(type){
+            case avc1:
+                fb = new Avc1Box(sp, size, type, header_size, ep);
+                break;
+            case mp4a:
+                fb = new Mp4aBox(sp, size, type, header_size, ep);
+                break;
+            default:
+                break;
+        }
+        assert(fb != NULL);
+
+        if ((ret = fb->initialize(fp)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        if ((ret = add(fb)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
+}
+
+int StsdBox::add(F4vBox* fb)
+{
+    int ret = ERROR_SUCCESS;
+
+    vector<F4vBox*>::iterator it;
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
+        return ret;
+    }
+    container.push_back(fb);
+    
     return ret;
 }
 
@@ -1951,6 +2039,8 @@ int SdtpBox::initialize(FILE** fp)
 
 void SdtpBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2048,6 +2138,8 @@ int MvexBox::add(F4vBox* fb)
 
 void MvexBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2083,6 +2175,8 @@ int MehdBox::initialize(FILE** fp)
 
 void MehdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2118,6 +2212,8 @@ int TrexBox::initialize(FILE** fp)
 
 void TrexBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2153,6 +2249,8 @@ int AuthBox::initialize(FILE** fp)
 
 void AuthBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2188,6 +2286,8 @@ int TitlBox::initialize(FILE** fp)
 
 void TitlBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2223,6 +2323,8 @@ int DscpBox::initialize(FILE** fp)
 
 void DscpBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2258,6 +2360,8 @@ int CprtBox::initialize(FILE** fp)
 
 void CprtBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2293,6 +2397,8 @@ int UdtaBox::initialize(FILE** fp)
 
 void UdtaBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2328,6 +2434,8 @@ int UuidBox::initialize(FILE** fp)
 
 void UuidBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2424,6 +2532,8 @@ int MoofBox::add(F4vBox* fb)
 
 void MoofBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2459,6 +2569,8 @@ int MfhdBox::initialize(FILE** fp)
 
 void MfhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2494,6 +2606,8 @@ int TrafBox::initialize(FILE** fp)
 
 void TrafBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2529,6 +2643,8 @@ int TfhdBox::initialize(FILE** fp)
 
 void TfhdBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2564,6 +2680,8 @@ int TrunBox::initialize(FILE** fp)
 
 void TrunBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2636,6 +2754,8 @@ int MetaBox::initialize(FILE** fp)
 
 void MetaBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2671,6 +2791,8 @@ int IlstBox::initialize(FILE** fp)
 
 void IlstBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2743,6 +2865,8 @@ int SkipBox::initialize(FILE** fp)
 
 void SkipBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2778,6 +2902,8 @@ int MfraBox::initialize(FILE** fp)
 
 void MfraBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2813,6 +2939,8 @@ int TfraBox::initialize(FILE** fp)
 
 void TfraBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }
@@ -2848,6 +2976,82 @@ int MfroBox::initialize(FILE** fp)
 
 void MfroBox::display()
 {
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
+    if (container.size() == 0) {
+        return;
+    }
+    
+    vector<F4vBox*>::iterator it;
+    for (it = container.begin(); it != container.end(); it++) {
+        (*it)->display();
+    }
+}   
+
+Avc1Box::Avc1Box(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+Avc1Box::~Avc1Box()
+{
+}
+
+int Avc1Box::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void Avc1Box::display()
+{
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
+    if (container.size() == 0) {
+        return;
+    }
+    
+    vector<F4vBox*>::iterator it;
+    for (it = container.begin(); it != container.end(); it++) {
+        (*it)->display();
+    }
+}
+
+Mp4aBox::Mp4aBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+Mp4aBox::~Mp4aBox()
+{
+}
+
+int Mp4aBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void Mp4aBox::display()
+{
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+    
     if (container.size() == 0) {
         return;
     }

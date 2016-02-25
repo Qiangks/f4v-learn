@@ -13,6 +13,7 @@
 class F4vSample
 {
 public:
+    uint32_t id;
     uint32_t type;
     uint32_t offset;
     uint32_t size;
@@ -401,6 +402,8 @@ public:
     virtual ~StsdBox();
 public:
     virtual int initialize(FILE** fp);
+    virtual int read(FILE** fp, uint64_t start, uint64_t end);
+    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -801,6 +804,30 @@ public:
 public:
     MfroBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~MfroBox();
+public:
+    virtual int initialize(FILE** fp);
+    virtual void display();
+};
+
+class Avc1Box : public F4vBox
+{
+public:
+
+public:
+    Avc1Box(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
+    virtual ~Avc1Box();
+public:
+    virtual int initialize(FILE** fp);
+    virtual void display();
+};
+
+class Mp4aBox : public F4vBox
+{
+public:
+
+public:
+    Mp4aBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
+    virtual ~Mp4aBox();
 public:
     virtual int initialize(FILE** fp);
     virtual void display();

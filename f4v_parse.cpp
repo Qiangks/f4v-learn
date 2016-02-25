@@ -226,6 +226,7 @@ int F4vFileParser::parse_sample()
 
         // get each sample's size, type
         for(uint32_t i = 0; i < stszb->size_count; i++) {
+            f4v_samples[i].id = i;
             f4v_samples[i].size = stszb->size_table[i];
             f4v_samples[i].type = hdb->handler_type;
         }
