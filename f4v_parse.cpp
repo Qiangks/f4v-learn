@@ -239,6 +239,7 @@ int F4vFileParser::parse_sample()
         }
 
         // get each sample's duration
+        int count = 0;
         for(int i = 0; i < sttsb->count; i++) {
             count = count + sttsb->stts_records[i].sample_count;
 
