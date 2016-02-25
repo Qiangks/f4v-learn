@@ -268,12 +268,12 @@ int F4vFileParser::show()
         F4vBox* fb = *it;
         fb->display();
     }
-/*
+
     if ((ret = show_sample()) != ERROR_SUCCESS) {
         f4v_error("show sample failed. ret=%d", ret);
         return ret;
     }
-*/
+
     return ret;
 }
 
@@ -346,8 +346,8 @@ std::vector<F4vBox*> F4vFileParser::get_traks()
 
     std::vector<F4vBox*>::iterator it;
     for (it = mvb->container.begin(); it != mvb->container.end(); it++) {
-        F4vBox* tkb = get_box(mvb, trak);
-        if (tkb != NULL) {
+        F4vBox* tkb = *it;
+        if (tkb->type == trak) {
             traks.push_back(tkb);
         }
     }
