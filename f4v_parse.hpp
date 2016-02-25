@@ -30,6 +30,7 @@ private:
     std::string file_name;
 private:
     std::vector<F4vBox*> f4v_boxes;
+    std::vector<std::vector<F4vSample> > f4v_vvs;
 public:
     F4vFileParser(std::string str);
     virtual ~F4vFileParser();

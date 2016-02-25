@@ -179,14 +179,79 @@ int F4vFileParser::parse_sample()
         F4vBox* hdb = get_box(mdb, hdlr);
         F4vBox* mfb = get_box(mdb, minf);
         F4vBox* stblb = get_box(mfb, stbl);
-        F4vBox* stsdb = get_box(stblb, stsd);
-        F4vBox* sttsb = get_box(stblb, stts);
-        F4vBox* cttsb = get_box(stblb, ctts);
-        F4vBox* stscb = get_box(stblb, stsc);
-        F4vBox* stszb = get_box(stblb, stsz);
-        F4vBox* stcob = get_box(stblb, stco);
-        F4vBox* stssb = get_box(stblb, stss);
-        F4vBox* sdtpb = get_box(stblb, sdtp);
+        StsdBox* stsdb = dynamic_cast<StsdBox*>(get_box(stblb, stsd));
+        SttsBox* sttsb = dynamic_cast<SttsBox*>(get_box(stblb, stts));
+        CttsBox* cttsb = dynamic_cast<CttsBox*>(get_box(stblb, ctts));
+        StscBox* stscb = dynamic_cast<StscBox*>(get_box(stblb, stsc));
+        StszBox* stszb = dynamic_cast<StszBox*>(get_box(stblb, stsz));
+        StcoBox* stcob = dynamic_cast<StcoBox*>(get_box(stblb, stco));
+        StssBox* stssb = dynamic_cast<StssBox*>(get_box(stblb, stss));
+        SdtpBox* sdtpb = dynamic_cast<SdtpBox*>(get_box(stblb, sdtp));
+            
+        std::vector<F4vSample> f4v_samples;
+
+        uint32_t total_chunk = stcob->offset_count;
+
+        F4vChunk f4v_chunk[total_chunk];
+
+        // restore the chunk---->sample list
+        uint32_t last_chk_no = total_chunk + 1;
+        for (int i = stscb->count - 1; i >= 0; --i) {
+            uint32_t beg_real_chkno = stscb->stsc_records[i].first_chunk;
+            
+            for (uint32_t chk_i = beg_real_chkno - 1; chk_i < last_chk_no - 1; chk_i++) {
+                f4v_chunk[chk_i].sample_count = stscb->stsc_records[i].spc;      
+                f4v_chunk[chk_i].sdi = stscb->stsc_records[i].sdi;
+            }
+            last_chk_no = beg_real_chkno; 
+        }
+
+        // restore the sample---->chunk list
+        uint32_t sam_index = 0;
+        for(uint32_t i = 0; i < total_chunk; i++) {
+            f4v_chunk[i].first_sample_index = sam_index;
+
+            uint32_t index_in_chunk = 0;
+            for(uint32_t sam_i = 0; sam_i < f4v_chunk[i].sample_count; sam_i++) {
+                F4vSample fs;
+                fs.chunk_index = i;
+                fs.index_in_chunk = index_in_chunk;
+                f4v_samples.push_back(fs);
+
+                sam_index++;
+                index_in_chunk++;
+            }
+        }
+
+        // get each sample's size, duration
+        for(uint32_t i = 0; i < stszb->size_count; i++) {
+            f4v_samples[i].size = stszb->size_table[i];
+        }
+
+        // get each sample's offset
+        for(int i = 0; i < stszb->size_count; i++) {
+            uint32_t chk_no = f4v_samples[i].chunk_index;
+            uint32_t index_in_chunk = f4v_samples[i].index_in_chunk;
+            f4v_samples[i].offset = stcob->offsets[chk_no];
+            for (int j = 0; j < index_in_chunk; j++) {
+                f4v_samples[i].offset += f4v_samples[i-j].size;
+            }
+        }
+
+        // get each sample's duration
+        int record_no = 0;
+        int count = 0;
+        for(int i = 0; i < sttsb->count; i++) {
+            count = count + sttsb->stts_records[i].sample_count;
+
+            for(int j = 0; j < stszb->size_count; j++) {
+                if(j < count) {
+                    f4v_samples[j].duration = sttsb->stts_records[i].sample_delta;
+                }
+            }
+        }
+
+        f4v_vvs.push_back(f4v_samples);
         
     }
 
