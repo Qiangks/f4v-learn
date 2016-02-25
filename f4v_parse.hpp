@@ -23,7 +23,7 @@ public:
     virtual int show() = 0;
 };
 
-class F4vFileParser:: virtual public IF4vParser
+class F4vFileParser : public IF4vParser
 {
 private:
     FILE *fp;
@@ -37,22 +37,14 @@ public:
     int initialize();
 private:
     int start();
-    int read(uint64_t start, uint64_t end);
     int add(F4vBox* fb);
+private:    
+    int read(uint64_t start, uint64_t end);
     int parse();
+public:
+    virtual int show();
 private:
-    int parse_ftyp();
-    int parse_pdin();
-    int parse_afra();
-    int parse_abst();
-    int parse_moov();
-    int parse_uuid();
-    int parse_moof();
-    int parse_mdat();
-    int parse_meta();
-    int parse_frde();
-    int parse_skip();
-    int parse_mfra();
+    int64_t get_filesize();
 };
 
 #endif //F4V_PARSEER_F4V_READ_HPP

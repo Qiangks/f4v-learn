@@ -2,28 +2,15 @@
 // Created by chnvideo on 2016/2/3.
 //
 
+#include <sstream>
+#include <assert.h>
+#include <algorithm>
 #include "f4v_box.hpp"
 #include "f4v_log.hpp"
 #include "f4v_utility.hpp"
 #include "f4v_type.hpp"
 
-F4vBox::F4vBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
-{
-    sp = start_position;
-    this->size = size;
-    this->type = type;
-    hs = header_size;
-    ep = end_position;
-}
-
-F4vBox::~F4vBox()
-{
-    std::vector<F4vBox*>::iterator it;
-    for (it = container.begin(); it != container.end(); it++) {
-        delete *it;
-    }
-}
-
+using namespace std;
 
 F4vSample::F4vSample()
 {
@@ -43,8 +30,25 @@ int F4vSample::display()
     return ret;
 }
 
-FtypBox::FtypBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+F4vBox::F4vBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+{
+    sp = start_position;
+    this->size = size;
+    this->type = type;
+    hs = header_size;
+    ep = end_position;
+}
+
+F4vBox::~F4vBox()
+{
+    std::vector<F4vBox*>::iterator it;
+    for (it = container.begin(); it != container.end(); it++) {
+        delete *it;
+    }
+}
+
+FtypBox::FtypBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -52,22 +56,23 @@ FtypBox::~FtypBox()
 {
 }
 
-int FtypBox::initialize(FILE* fp)
+int FtypBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
     
-    int size = size - hs;
-    ::fseek(fp, sp + hs, SEEK_SET);
-    unsigned char* buf = new unsigned char[size];
-    ::fread(buf, 1, size, fp);
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
 
     unsigned char* curr = buf;
-    major_brand = f4v_bytes_to_uint32(curr, 4);
-    minor_version = f4v_bytes_to_uint32(curr, 4);
+    major_brand = f4v_bytes_to_uint32(&curr, 4);
+    minor_version = f4v_bytes_to_uint32(&curr, 4);
 
     stringstream ss;
-    for(int i = 8; i < size; i++) {
-        ss << buf[i];
+    for(int i = 8; i < sz; i++) {
+        ss << *curr;
+        curr++;
     }
     compatible_brands = ss.str();
 
@@ -81,8 +86,8 @@ void FtypBox::display()
                     compatible_brands.c_str());
 }
 
-PdinBox::PdinBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+PdinBox::PdinBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -90,9 +95,16 @@ PdinBox::~PdinBox()
 {
 }
 
-int PdinBox::initialize(FILE * fp)
+int PdinBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
@@ -101,8 +113,8 @@ void PdinBox::display()
 {
 }
 
-AfraBox::AfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AfraBox::AfraBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -110,9 +122,16 @@ AfraBox::~AfraBox()
 {
 }
 
-int AfraBox::initialize(FILE * fp)
+int AfraBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
@@ -121,8 +140,8 @@ void AfraBox::display()
 {
 }
 
-AbstBox::AbstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AbstBox::AbstBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -130,9 +149,16 @@ AbstBox::~AbstBox()
 {
 }
 
-int AbstBox::initialize(FILE * fp)
+int AbstBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
@@ -141,8 +167,62 @@ void AbstBox::display()
 {
 }
 
-MoovBox::MoovBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AsrtBox::AsrtBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+AsrtBox::~AsrtBox()
+{
+}
+
+int AsrtBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void AsrtBox::display()
+{
+}
+
+AfrtBox::AfrtBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+AfrtBox::~AfrtBox()
+{
+}
+
+int AfrtBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void AfrtBox::display()
+{
+}
+
+MoovBox::MoovBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -150,7 +230,7 @@ MoovBox::~MoovBox()
 {
 }
 
-int MoovBox::initialize(FILE* fp)
+int MoovBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
 
@@ -162,66 +242,28 @@ int MoovBox::initialize(FILE* fp)
     return ret;
 }
 
-int MoovBox::read(FILE* fp, uint64_t start, uint64_t end)
+int MoovBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         ret = ERROR_END_POSITION;
         f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
         return ret;
     }
 
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    while(ftell(*fp) < end) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
@@ -262,11 +304,23 @@ int MoovBox::read(FILE* fp, uint64_t start, uint64_t end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
 }
 
 int MoovBox::add(F4vBox* fb)
 {
+    int ret = ERROR_SUCCESS;
+
+    vector<F4vBox*>::iterator it;
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
+        return ret;
+    }
+    container.push_back(fb);
+    
+    return ret;
 }
 
 void MoovBox::display()
@@ -274,233 +328,8 @@ void MoovBox::display()
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
-int MoovBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
-UuidBox::UuidBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-UuidBox::~UuidBox()
-{
-}
-
-void UuidBox::display()
-{
-}
-
-MoofBox::MoofBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-MoofBox::~MoofBox()
-{
-}
-
-
-int MoofBox::read(FILE * fp, uint64_t start, uint64_t end)
-{
-    int ret = ERROR_SUCCESS;
-    
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
-        ret = ERROR_END_POSITION;
-        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
-        return ret;
-    }
-
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
-        uint32_t header_size = -1;
-        uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
-        }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
-        
-        switch(type){
-            case mfhd:
-                mfhdx = new MfhdBox(sp, size, type, header_size, ep, 0, false);
-                break;
-            case traf:
-                trafx = new TrafBox(sp, size, type, header_size, ep, header_size, true);
-                break;
-            default:
-                break;
-        }
-        assert(fb != NULL);
-
-        if ((ret = fb->initialize(fp)) != ERROR_SUCCESS) {
-            return ret;
-        }
-
-        if ((ret = add(fb)) != ERROR_SUCCESS) {
-            return ret;
-        }
-
-        ::fseek(fp, ep, SEEK_SET);
-    }
-}
-
-int MoofBox::add()
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
-void MoofBox::display()
-{
-}
-
-MdatBox::MdatBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-MdatBox::~MdatBox()
-{
-}
-
-int MdatBox::initialize(FILE* fp)
-{
-}
-
-void MdatBox::display()
-{
-    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
-}
-
-MetaBox::MetaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-MetaBox::~MetaBox()
-{
-}
-
-int MetaBox::initialize(FILE* fp);
-{
-}
-
-void MetaBox::display()
-{
-}
-
-FreeBox::FreeBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-FreeBox::~FreeBox()
-{
-}
-
-int FreeBox::initialize(FILE* fp);
-{
-}
-
-void FreeBox::display()
-{
-    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
-}
-
-SkipBox::SkipBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-SkipBox::~SkipBox()
-{
-}
-
-int SkipBox::initialize(FILE* fp);
-{
-}
-
-void SkipBox::display()
-{
-}
-
-MfraBox::MfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-MfraBox::~MfraBox()
-{
-}
-
-int SkipBox::initialize(FILE* fp);
-{
-}
-
-void MfraBox::display()
-{
-}
-
-MvhdBox::MvhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MvhdBox::MvhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -508,29 +337,31 @@ MvhdBox::~MvhdBox()
 {
 }
 
-int MvhdBox::initialize(FILE* fp)
+int MvhdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
     
-    int size = size - hs;
-    ::fseek(fp, sp + hs, SEEK_SET);
-    unsigned char buf[size];
-    ::fread(buf, 1, size, fp);
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char buf[sz];
+    ::fread(buf, 1, sz, *fp);
 
-    version = f4v_bytes_to_uint32(buf, 1);
-    flags = f4v_bytes_to_uint32(&buf[1], 3);
+    unsigned char* curr = buf;
+
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
     if (version == 0) {
-        creation_time = f4v_bytes_to_uint32(&buf[4], 4);
-        modification_time = f4v_bytes_to_uint32(&buf[8], 4);
-        timescale = f4v_bytes_to_uint32(&buf[12], 4);
-        duration = f4v_bytes_to_uint32(&buf[16], 4);
-        rate = f4v_bytes_to_uint32(&buf[20], 2) + (float)f4v_bytes_to_uint32(&buf[22], 2)/10;
+        creation_time = f4v_bytes_to_uint32(&curr, 4);
+        modification_time = f4v_bytes_to_uint32(&curr, 4);
+        timescale = f4v_bytes_to_uint32(&curr, 4);
+        duration = f4v_bytes_to_uint32(&curr, 4);
+        rate = f4v_bytes_to_uint32(&curr, 2) + (float)f4v_bytes_to_uint32(&curr, 2)/10;
     } else {
-        creation_time = f4v_bytes_to_uint32(&buf[4], 8);
-        modification_time = f4v_bytes_to_uint32(&buf[12], 8);
-        timescale = f4v_bytes_to_uint32(&buf[20], 4);
-        duration = f4v_bytes_to_uint32(&buf[24], 8);
-        rate = f4v_bytes_to_uint32(&buf[32], 2) + (float)f4v_bytes_to_uint32(&buf[34], 2)/10;
+        creation_time = f4v_bytes_to_uint32(&curr, 8);
+        modification_time = f4v_bytes_to_uint32(&curr, 8);
+        timescale = f4v_bytes_to_uint32(&curr, 4);
+        duration = f4v_bytes_to_uint32(&curr, 8);
+        rate = f4v_bytes_to_uint32(&curr, 2) + (float)f4v_bytes_to_uint32(&curr, 2)/10;
     }
 
     return ret;
@@ -542,8 +373,8 @@ void MvhdBox::display()
         "Rate: %0.1f", f4v_int2str(type).c_str(), size, creation_time, modification_time, timescale, duration, rate);
 }
 
-TrakBox::TrakBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+TrakBox::TrakBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -551,7 +382,7 @@ TrakBox::~TrakBox()
 {
 }
 
-int TrakBox::initialize(FILE* fp)
+int TrakBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
 
@@ -563,76 +394,38 @@ int TrakBox::initialize(FILE* fp)
     return ret;
 }
 
-int TrakBox::read(FILE* fp, int start, int end)
+int TrakBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         ret = ERROR_END_POSITION;
         f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
         return ret;
     }
 
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    while(ftell(*fp) < end) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
-            case mvhd:
+            case tkhd:
                 fb = new TkhdBox(sp, size, type, header_size, ep);
                 break;
-            case trak:
+            case edts:
                 fb = new EdtsBox(sp, size, type, header_size, ep);
                 break;
-            case mvex:
+            case mdia:
                 fb = new MdiaBox(sp, size, type, header_size, ep);
                 break;
             default:
@@ -648,7 +441,10 @@ int TrakBox::read(FILE* fp, int start, int end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }  
+
+    return ret;
 }
 
 int TrakBox::add(F4vBox* fb)
@@ -656,7 +452,7 @@ int TrakBox::add(F4vBox* fb)
     int ret = ERROR_SUCCESS;
 
     vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
         return ret;
     }
     container.push_back(fb);
@@ -669,232 +465,8 @@ void TrakBox::display()
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
-MvexBox::MvexBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-MvexBox::~MvexBox()
-{
-}
-
-int MvexBox::initialize(FILE* fp)
-{
-    int ret = ERROR_SUCCESS;
-
-    if ((ret = read(fp, sp + hs, ep)) != ERROR_SUCCESS) {
-        f4v_error("read mvex box failed. ret=%d", ret);
-        return ret;
-    }
-
-    return ret;
-}
-
-int MvexBox::read(FILE* fp, int start, int end)
-{
-    int ret = ERROR_SUCCESS;
-    
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
-        ret = ERROR_END_POSITION;
-        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
-        return ret;
-    }
-
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
-        uint32_t header_size = -1;
-        uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
-        }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
-
-        F4vBox* fb = NULL;
-        switch(type){
-            case mehd:
-                fb = new MehdBox(sp, size, type, header_size, ep);
-                break;
-            case trex:
-                fb = new TrexBox(sp, size, type, header_size, ep);
-                break;
-            default:
-                break;
-        }
-        assert(fb != NULL);
-
-        if ((ret = fb->initialize(fp)) != ERROR_SUCCESS) {
-            return ret;
-        }
-
-        if ((ret = add(fb)) != ERROR_SUCCESS) {
-            return ret;
-        }
-
-        ::fseek(fp, ep, SEEK_SET);
-}
-
-int MvexBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
-
-void MvexBox::display()
-{
-}
-
-AuthBox::AuthBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-AuthBox::~AuthBox()
-{
-}
-
-int AuthBox::initialize(FILE* fp)
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-void AuthBox::display()
-{
-}
-
-TitlBox::TitlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-TitlBox::~TitlBox()
-{
-}
-
-int TitlBox::initialize(FILE* fp)
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-void TitlBox::display()
-{
-}
-
-DscpBox::DscpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-DscpBox::~DscpBox()
-{
-}
-
-int DscpBox::initialize(FILE* fp)
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-void DscpBox::display()
-{
-}
-
-CprtBox::CprtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-CprtBox::~CprtBox()
-{
-}
-
-int CprtBox::initialize(FILE* fp)
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-void CprtBox::display()
-{
-}
-
-UdtaBox::UdtaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-UdtaBox::~UdtaBox()
-{
-}
-
-int UdtaBox::initialize(FILE* fp)
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-void UdtaBox::display()
-{
-}
-
-TkhdBox::TkhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+TkhdBox::TkhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -902,10 +474,28 @@ TkhdBox::~TkhdBox()
 {
 }
 
-
-int TkhdBox::initialize(FILE* fp)
+int TkhdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    if (version == 0) {
+        creation_time = f4v_bytes_to_uint32(&curr, 4);
+        modification_time = f4v_bytes_to_uint32(&curr, 4);
+        trak_id= f4v_bytes_to_uint32(&curr, 4);
+        duration = f4v_bytes_to_uint32(&curr, 4);
+    } else {
+        creation_time = f4v_bytes_to_uint32(&curr, 8);
+        modification_time = f4v_bytes_to_uint32(&curr, 8);
+        trak_id = f4v_bytes_to_uint32(&curr, 4);
+        duration = f4v_bytes_to_uint32(&curr, 8);
+    }
 
     return ret;
 }
@@ -917,8 +507,8 @@ void TkhdBox::display()
         duration, trak_id);
 }
 
-EdtsBox::EdtsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+EdtsBox::EdtsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -926,7 +516,7 @@ EdtsBox::~EdtsBox()
 {
 }
 
-int EdtsBox::initialize(FILE* fp)
+int EdtsBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
 
@@ -938,66 +528,28 @@ int EdtsBox::initialize(FILE* fp)
     return ret;
 }
 
-int EdtsBox::read(FILE* fp, int start, int end)
+int EdtsBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         ret = ERROR_END_POSITION;
         f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
         return ret;
     }
 
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    while(ftell(*fp) < end) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
@@ -1017,8 +569,10 @@ int EdtsBox::read(FILE* fp, int start, int end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }
 
+    return ret;
 }
 
 int EdtsBox::add(F4vBox* fb)
@@ -1026,7 +580,7 @@ int EdtsBox::add(F4vBox* fb)
     int ret = ERROR_SUCCESS;
 
     vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
         return ret;
     }
     container.push_back(fb);
@@ -1038,8 +592,8 @@ void EdtsBox::display()
 {
 }
 
-ElstBox::ElstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+ElstBox::ElstBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1047,12 +601,26 @@ ElstBox::~ElstBox()
 {
 }
 
+int ElstBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void ElstBox::display()
 {
 }
 
-MdiaBox::MdiaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MdiaBox::MdiaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1060,7 +628,7 @@ MdiaBox::~MdiaBox()
 {
 }
 
-int MdiaBox::initialize(FILE * fp)
+int MdiaBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
 
@@ -1072,66 +640,28 @@ int MdiaBox::initialize(FILE * fp)
     return ret;
 }
 
-int MdiaBox::read(FILE* fp, int start, int end)
+int MdiaBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         ret = ERROR_END_POSITION;
         f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
         return ret;
     }
 
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    while(ftell(*fp) < end) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
@@ -1157,7 +687,10 @@ int MdiaBox::read(FILE* fp, int start, int end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
 }
 
 
@@ -1166,7 +699,7 @@ int MdiaBox::add(F4vBox* fb)
     int ret = ERROR_SUCCESS;
 
     vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
         return ret;
     }
     container.push_back(fb);
@@ -1178,8 +711,8 @@ void MdiaBox::display()
 {
 }
 
-MdhdBox::MdhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MdhdBox::MdhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1187,9 +720,28 @@ MdhdBox::~MdhdBox()
 {
 }
 
-int MdhdBox::initialize(FILE * fp)
+int MdhdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    if (version == 0) {
+        creation_time = f4v_bytes_to_uint32(&curr, 4);
+        modification_time = f4v_bytes_to_uint32(&curr, 4);
+        timescale = f4v_bytes_to_uint32(&curr, 4);
+        duration = f4v_bytes_to_uint32(&curr, 4);
+    } else {
+        creation_time = f4v_bytes_to_uint32(&curr, 8);
+        modification_time = f4v_bytes_to_uint32(&curr, 8);
+        timescale = f4v_bytes_to_uint32(&curr, 4);
+        duration = f4v_bytes_to_uint32(&curr, 8);
+    }
 
     return ret;
 }
@@ -1201,8 +753,8 @@ void MdhdBox::display()
         duration, timescale);
 }
 
-HdlrBox::HdlrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+HdlrBox::HdlrBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1210,9 +762,20 @@ HdlrBox::~HdlrBox()
 {
 }
 
-int HdlrBox::initialize(FILE * fp)
+int HdlrBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version  = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    predefined = f4v_bytes_to_uint32(&curr, 4);
+    handler_type = f4v_bytes_to_uint32(&curr, 4);
 
     return ret;
 }
@@ -1223,8 +786,8 @@ void HdlrBox::display()
         f4v_int2str(handler_type).c_str());
 }
 
-MinfBox::MinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MinfBox::MinfBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1232,73 +795,36 @@ MinfBox::~MinfBox()
 {
 }
 
-int MinfBox::initialize(FILE * fp)
+int MinfBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
 
-int MinfBox::read(FILE* fp, int start, int end)
+int MinfBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
-        ret = ERROR_END_POSITION;
-        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
-        return ret;
-    }
-
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
@@ -1333,7 +859,10 @@ int MinfBox::read(FILE* fp, int start, int end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
 }
 
 int MinfBox::add(F4vBox* fb)
@@ -1341,7 +870,7 @@ int MinfBox::add(F4vBox* fb)
     int ret = ERROR_SUCCESS;
 
     vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
         return ret;
     }
     container.push_back(fb);
@@ -1354,8 +883,8 @@ void MinfBox::display()
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
-VmhdBox::VmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+VmhdBox::VmhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1363,9 +892,22 @@ VmhdBox::~VmhdBox()
 {
 }
 
-int VmhdBox::initialize(FILE * fp)
+int VmhdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    graphic_mode = f4v_bytes_to_uint32(&curr, 2);
+    op_color[0] = f4v_bytes_to_uint32(&curr, 2);
+    op_color[1] = f4v_bytes_to_uint32(&curr, 2);
+    op_color[2] = f4v_bytes_to_uint32(&curr, 2);
 
     return ret;
 }
@@ -1376,8 +918,8 @@ void VmhdBox::display()
         f4v_int2str(type).c_str(), size, version, flags, graphic_mode, op_color[0], op_color[1], op_color[3]);
 }
 
-SmhdBox::SmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+SmhdBox::SmhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1385,9 +927,19 @@ SmhdBox::~SmhdBox()
 {
 }
 
-int SmhdBox::initialize(FILE * fp)
+int SmhdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    balance = (float)f4v_bytes_to_uint32(&curr, 1) + (float)f4v_bytes_to_uint32(&curr, 1)/10;
 
     return ret;
 }
@@ -1398,8 +950,8 @@ void SmhdBox::display()
         f4v_int2str(type).c_str(), size, version, flags, balance);
 }
 
-HmhdBox::HmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+HmhdBox::HmhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1407,9 +959,16 @@ HmhdBox::~HmhdBox()
 {
 }
 
-int HmhdBox::initialize(FILE * fp)
+int HmhdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
@@ -1418,8 +977,8 @@ void HmhdBox::display()
 {
 }
 
-NmhdBox::NmhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+NmhdBox::NmhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1427,9 +986,16 @@ NmhdBox::~NmhdBox()
 {
 }
 
-int NmhdBox::initialize(FILE * fp)
+int NmhdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
@@ -1438,8 +1004,8 @@ void NmhdBox::display()
 {
 }
 
-DinfBox::DinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+DinfBox::DinfBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1447,7 +1013,7 @@ DinfBox::~DinfBox()
 {
 }
 
-int DinfBox::initialize(FILE * fp)
+int DinfBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
 
@@ -1459,66 +1025,22 @@ int DinfBox::initialize(FILE * fp)
     return ret;
 }
 
-int DinfBox::read(FILE* fp, int start, int end)
+int DinfBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
-        ret = ERROR_END_POSITION;
-        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
-        return ret;
-    }
-
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
@@ -1538,7 +1060,10 @@ int DinfBox::read(FILE* fp, int start, int end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
 }
 
 int DinfBox::add(F4vBox* fb)
@@ -1546,7 +1071,7 @@ int DinfBox::add(F4vBox* fb)
     int ret = ERROR_SUCCESS;
 
     vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
         return ret;
     }
     container.push_back(fb);
@@ -1558,8 +1083,8 @@ void DinfBox::display()
 {
 }
 
-DrefBox::DrefBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+DrefBox::DrefBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1567,9 +1092,20 @@ DrefBox::~DrefBox()
 {
 }
 
-int DrefBox::initialize(FILE * fp)
+int DrefBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    entry_count = f4v_bytes_to_uint32(&curr, 4);
 
     if ((ret = read(fp, sp + hs, ep)) != ERROR_SUCCESS) {
         f4v_error("rad dref box failed. ret=%d", ret);
@@ -1579,66 +1115,28 @@ int DrefBox::initialize(FILE * fp)
     return ret;
 }
 
-int DrefBox::read(FILE* fp, int start, int end)
+int DrefBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         ret = ERROR_END_POSITION;
         f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
         return ret;
     }
 
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    while(ftell(*fp) < end) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
@@ -1658,7 +1156,10 @@ int DrefBox::read(FILE* fp, int start, int end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
 }
 
 int DrefBox::add(F4vBox* fb)
@@ -1666,7 +1167,7 @@ int DrefBox::add(F4vBox* fb)
     int ret = ERROR_SUCCESS;
 
     vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
         return ret;
     }
     container.push_back(fb);
@@ -1680,8 +1181,8 @@ void DrefBox::display()
         f4v_int2str(type).c_str(), size, version, flags, entry_count);
 }
 
-UrlBox::UrlBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+UrlBox::UrlBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1689,9 +1190,19 @@ UrlBox::~UrlBox()
 {
 }
 
-int UrlBox::initialize(FILE* fp)
+int UrlBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
 
     return ret;
 }
@@ -1702,8 +1213,8 @@ void UrlBox::display()
         f4v_int2str(type).c_str(), size, version, flags);
 }
 
-StblBox::StblBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+StblBox::StblBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1711,7 +1222,7 @@ StblBox::~StblBox()
 {
 }
 
-int StblBox::initialize(FILE* fp)
+int StblBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
 
@@ -1723,66 +1234,28 @@ int StblBox::initialize(FILE* fp)
     return ret;
 }
 
-int StblBox::read(FILE* fp, int start, int end)
+int StblBox::read(FILE** fp, uint64_t start, uint64_t end)
 {
     int ret = ERROR_SUCCESS;
     
-    ::fseek(fp, start, SEEK_SET);
-    if (end <= ftell(fp)) {
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
         ret = ERROR_END_POSITION;
         f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
         return ret;
     }
 
-    while(ftell(fp) < end) {
-        // get the box start position
-        uint64_t sp = ftell(fp);
-
-        // read box header
-        unsigned char head[BOX_HEADER_SIZE];
-        if((fread(head, 1, BOX_HEADER_SIZE, fp)) != BOX_HEADER_SIZE) {
-            ret = ERROR_SYSTEM_READ_FAILED;
-            f4v_error("read box header error, ret=%d", ret);
-        }
-        
+    while(ftell(*fp) < end) {
         uint32_t header_size = -1;
+        uint32_t type = -1;
         uint64_t size = -1;
-
-        uint32_t temp = 0;
-        char* pp = (char*)&temp;
-        pp[3] = head[0];
-        pp[2] = head[1];
-        pp[1] = head[2];
-        pp[0] = head[3];
-
-        // get the box size
-        if(temp == 1) {
-            char extend[BOX_EXTENDED_SIZE];
-            if((fread(extend, 1, BOX_EXTENDED_SIZE, fp)) != BOX_EXTENDED_SIZE) {
-                ret = ERROR_READ_BOX_HEADER_FAILED;
-                f4v_error("read the box header extended size error, ret=%d", ret);
-                return ret;
-            }
-            pp = (char*)&(size);
-            pp[7] = extend[0];
-            pp[6] = extend[1];
-            pp[5] = extend[2];
-            pp[4] = extend[3];
-            pp[3] = extend[4];
-            pp[2] = extend[5];
-            pp[1] = extend[6];
-            pp[0] = extend[7];
-
-            header_size = BOX_HEADER_SIZE + BOX_EXTENDED_SIZE;
-        } else {
-            header_size = BOX_HEADER_SIZE;
-            size = temp;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
         }
-
-        // get the box type
-        int32_t type = f4v_bytes_to_uint32(&head[4], 4);
-        // get the box end position
-        uint64_t ep = sp + size;
 
         F4vBox* fb = NULL;
         switch(type){
@@ -1826,15 +1299,18 @@ int StblBox::read(FILE* fp, int start, int end)
             return ret;
         }
 
-        ::fseek(fp, ep, SEEK_SET);
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
 }
 
-int StblBox::add()
+int StblBox::add(F4vBox* fb)
 {
     int ret = ERROR_SUCCESS;
 
     vector<F4vBox*>::iterator it;
-    if((it = ::find(container.begin(), container.end(), fb)) != container.end()) {
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
         return ret;
     }
     container.push_back(fb);
@@ -1847,8 +1323,8 @@ void StblBox::display()
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
 }
 
-StsdBox::StsdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+StsdBox::StsdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1856,9 +1332,20 @@ StsdBox::~StsdBox()
 {
 }
 
-int StsdBox::initialize(FILE* fp)
+int StsdBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    count = f4v_bytes_to_uint32(&curr, 4);
 
     return ret;
 }
@@ -1869,8 +1356,8 @@ void StsdBox::display()
         f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
-SttsBox::SttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+SttsBox::SttsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1878,9 +1365,26 @@ SttsBox::~SttsBox()
 {
 }
 
-int SttsBox::initialize(FILE* fp)
+int SttsBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    count = f4v_bytes_to_uint32(&curr, 4);
+    for (uint32_t i = 0; i < count; i++) {
+        SttsRecord sr;
+        sr.sample_count =  f4v_bytes_to_uint32(&curr, 4);
+        sr.sample_delta = f4v_bytes_to_uint32(&curr, 4);
+        stts_records.push_back(sr);
+    }
 
     return ret;
 }
@@ -1891,8 +1395,8 @@ void SttsBox::display()
         f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
-CttsBox::CttsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+CttsBox::CttsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1900,9 +1404,26 @@ CttsBox::~CttsBox()
 {
 }
 
-int CttsBox::initialize(FILE* fp)
+int CttsBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    count = f4v_bytes_to_uint32(&curr, 4);
+    for(uint32_t i = 0; i < count; i++) {
+        CttsRecord cr;
+        cr.sample_count = f4v_bytes_to_uint32(&curr, 4);
+        cr.sample_offset = f4v_bytes_to_uint32(&curr, 4);
+        ctts_records.push_back(cr);
+    }
 
     return ret;
 }
@@ -1913,8 +1434,8 @@ void CttsBox::display()
         f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
-StscBox::StscBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+StscBox::StscBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1922,9 +1443,26 @@ StscBox::~StscBox()
 {
 }
 
-int StscBox::initialize(FILE* fp)
+int StscBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    count = f4v_bytes_to_uint32(&curr, 4);
+    for (int i = 0; i< count; i++) {
+        StscRecord sr;
+        sr.first_chunk = f4v_bytes_to_uint32(&curr, 4);
+        sr.spc = f4v_bytes_to_uint32(&curr, 4);
+        sr.sdi = f4v_bytes_to_uint32(&curr, 4);
+        stsc_records.push_back(sr);
+    }
 
     return ret;
 }
@@ -1935,8 +1473,8 @@ void StscBox::display()
         f4v_int2str(type).c_str(), size, version, flags, count);
 }
 
-StszBox::StszBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+StszBox::StszBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1944,9 +1482,24 @@ StszBox::~StszBox()
 {
 }
 
-int StszBox::initialize(FILE* fp)
+int StszBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    constant_size = f4v_bytes_to_uint32(&curr, 4);
+    size_count = f4v_bytes_to_uint32(&curr, 4);
+    for (uint32_t i = 0; i < size_count; i++) {
+        uint32_t st = f4v_bytes_to_uint32(&curr, 4);
+       size_table.push_back(st);
+    }
 
     return ret;
 }
@@ -1957,8 +1510,8 @@ void StszBox::display()
         f4v_int2str(type).c_str(), size, version, flags, constant_size, size_count);
 }
 
-StcoBox::StcoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+StcoBox::StcoBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1966,9 +1519,23 @@ StcoBox::~StcoBox()
 {
 }
 
-int StcoBox::initialize(FILE* fp)
+int StcoBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    offset_count = f4v_bytes_to_uint32(&curr, 4);
+    for (uint32_t i = 0; i < offset_count; i++) {
+        uint32_t offset = f4v_bytes_to_uint32(&curr, 4);
+        offsets.push_back(offset);
+    }
 
     return ret;
 }
@@ -1979,8 +1546,8 @@ void StcoBox::display()
         f4v_int2str(type).c_str(), size, version, flags, offset_count);
 }
 
-Co64Box::Co64Box(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+Co64Box::Co64Box(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -1988,9 +1555,16 @@ Co64Box::~Co64Box()
 {
 }
 
-int Co64Box::initialize(FILE* fp)
+int Co64Box::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
@@ -1999,8 +1573,8 @@ void Co64Box::display()
 {
 }
 
-StssBox::StssBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+StssBox::StssBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2008,9 +1582,23 @@ StssBox::~StssBox()
 {
 }
 
-int StssBox::initialize(FILE* fp)
+int StssBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+    version = f4v_bytes_to_uint32(&curr, 1);
+    flags = f4v_bytes_to_uint32(&curr, 3);
+    sync_count = f4v_bytes_to_uint32(&curr, 4);
+    for (uint32_t i = 0; i < sync_count; i++) {
+        uint32_t st = f4v_bytes_to_uint32(&curr, 4);
+        sync_table.push_back(st);
+    }
 
     return ret;
 }
@@ -2021,8 +1609,8 @@ void StssBox::display()
         f4v_int2str(type).c_str(), size, version, flags, sync_count);
 }
 
-SdtpBox::SdtpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+SdtpBox::SdtpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2030,9 +1618,16 @@ SdtpBox::~SdtpBox()
 {
 }
 
-int SdtpBox::initialize(FILE* fp)
+int SdtpBox::initialize(FILE** fp)
 {
     int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
 
     return ret;
 }
@@ -2041,39 +1636,97 @@ void SdtpBox::display()
 {
 }
 
-
-
-// TODO: =====================================================================
-
-AsrtBox::AsrtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MvexBox::MvexBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
-AsrtBox::~AsrtBox()
+MvexBox::~MvexBox()
 {
 }
 
-void AsrtBox::display()
+int MvexBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+
+    if ((ret = read(fp, sp + hs, ep)) != ERROR_SUCCESS) {
+        f4v_error("read mvex box failed. ret=%d", ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int MvexBox::read(FILE** fp, uint64_t start, uint64_t end)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
+        ret = ERROR_END_POSITION;
+        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
+        return ret;
+    }
+
+    while(ftell(*fp) < end) {
+        uint32_t header_size = -1;
+        uint32_t type = -1;
+        uint64_t size = -1;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
+        }
+
+        F4vBox* fb = NULL;
+        switch(type){
+            case mehd:
+                fb = new MehdBox(sp, size, type, header_size, ep);
+                break;
+            case trex:
+                fb = new TrexBox(sp, size, type, header_size, ep);
+                break;
+            default:
+                break;
+        }
+        assert(fb != NULL);
+
+        if ((ret = fb->initialize(fp)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        if ((ret = add(fb)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+
+    return ret;
+}
+
+int MvexBox::add(F4vBox* fb)
+{
+    int ret = ERROR_SUCCESS;
+
+    vector<F4vBox*>::iterator it;
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
+        return ret;
+    }
+    container.push_back(fb);
+    
+    return ret;
+}
+
+
+void MvexBox::display()
 {
 }
 
-AfrtBox::AfrtBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
-{
-}
-
-AfrtBox::~AfrtBox()
-{
-}
-
-void AfrtBox::display()
-{
-}
-
-
-MehdBox::MehdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MehdBox::MehdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2081,12 +1734,26 @@ MehdBox::~MehdBox()
 {
 }
 
+int MehdBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void MehdBox::display()
 {
 }
 
-TrexBox::TrexBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+TrexBox::TrexBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2094,12 +1761,276 @@ TrexBox::~TrexBox()
 {
 }
 
+int TrexBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void TrexBox::display()
 {
 }
 
-MfhdBox::MfhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AuthBox::AuthBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+AuthBox::~AuthBox()
+{
+}
+
+int AuthBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void AuthBox::display()
+{
+}
+
+TitlBox::TitlBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+TitlBox::~TitlBox()
+{
+}
+
+int TitlBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void TitlBox::display()
+{
+}
+
+DscpBox::DscpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+DscpBox::~DscpBox()
+{
+}
+
+int DscpBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void DscpBox::display()
+{
+}
+
+CprtBox::CprtBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+CprtBox::~CprtBox()
+{
+}
+
+int CprtBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void CprtBox::display()
+{
+}
+
+UdtaBox::UdtaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+UdtaBox::~UdtaBox()
+{
+}
+
+int UdtaBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void UdtaBox::display()
+{
+}
+
+UuidBox::UuidBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+UuidBox::~UuidBox()
+{
+}
+
+int UuidBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void UuidBox::display()
+{
+}
+
+MoofBox::MoofBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+MoofBox::~MoofBox()
+{
+}
+
+int MoofBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+int MoofBox::read(FILE** fp, uint64_t start, uint64_t end)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ::fseek(*fp, start, SEEK_SET);
+    if (end <= ftell(*fp)) {
+        ret = ERROR_END_POSITION;
+        f4v_error("the box position start=%ld, end=%ld error, ret=%d", start, end, ret);
+        return ret;
+    }
+
+    while(ftell(*fp) < end) {
+        uint32_t header_size = -1;
+        uint32_t type = -1;
+        uint64_t size = -1;
+        uint64_t sp = 0;
+        uint64_t ep = 0;
+        
+        if ( (ret = get_box_header(fp, header_size, type, size, sp, ep)) !=ERROR_SUCCESS) {
+            f4v_error("get the box header data failed. ret=%d", ret);
+            return ret;
+        }
+
+        F4vBox* fb = NULL;
+        switch(type){
+            case mfhd:
+                fb = new MfhdBox(sp, size, type, header_size, ep);
+                break;
+            case traf:
+                fb = new TrafBox(sp, size, type, header_size, ep);
+                break;
+            default:
+                break;
+        }
+        assert(fb != NULL);
+
+        if ((ret = fb->initialize(fp)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        if ((ret = add(fb)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        ::fseek(*fp, ep, SEEK_SET);
+    }
+}
+
+int MoofBox::add(F4vBox* fb)
+{
+    int ret = ERROR_SUCCESS;
+
+    vector<F4vBox*>::iterator it;
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
+        return ret;
+    }
+    container.push_back(fb);
+    
+    return ret;
+}
+
+void MoofBox::display()
+{
+}
+
+MfhdBox::MfhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2107,12 +2038,26 @@ MfhdBox::~MfhdBox()
 {
 }
 
+int MfhdBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void MfhdBox::display()
 {
 }
 
-TrafBox::TrafBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+TrafBox::TrafBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2120,12 +2065,26 @@ TrafBox::~TrafBox()
 {
 }
 
+int TrafBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void TrafBox::display()
 {
 }
 
-TfhdBox::TfhdBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+TfhdBox::TfhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2133,12 +2092,26 @@ TfhdBox::~TfhdBox()
 {
 }
 
+int TfhdBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void TfhdBox::display()
 {
 }
 
-TrunBox::TrunBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+TrunBox::TrunBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2146,12 +2119,81 @@ TrunBox::~TrunBox()
 {
 }
 
+int TrunBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void TrunBox::display()
 {
 }
 
-IlstBox::IlstBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MdatBox::MdatBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+MdatBox::~MdatBox()
+{
+}
+
+int MdatBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void MdatBox::display()
+{
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+}
+
+MetaBox::MetaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+MetaBox::~MetaBox()
+{
+}
+
+int MetaBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void MetaBox::display()
+{
+}
+
+IlstBox::IlstBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2159,12 +2201,108 @@ IlstBox::~IlstBox()
 {
 }
 
+int IlstBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void IlstBox::display()
 {
 }
 
-TfraBox::TfraBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+FreeBox::FreeBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+FreeBox::~FreeBox()
+{
+}
+
+int FreeBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void FreeBox::display()
+{
+    f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
+}
+
+SkipBox::SkipBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+SkipBox::~SkipBox()
+{
+}
+
+int SkipBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void SkipBox::display()
+{
+}
+
+MfraBox::MfraBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
+{
+}
+
+MfraBox::~MfraBox()
+{
+}
+
+int MfraBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
+void MfraBox::display()
+{
+}
+
+TfraBox::TfraBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2172,12 +2310,26 @@ TfraBox::~TfraBox()
 {
 }
 
+int TfraBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void TfraBox::display()
 {
 }
 
-MfroBox::MfroBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+MfroBox::MfroBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2185,12 +2337,28 @@ MfroBox::~MfroBox()
 {
 }
 
+int MfroBox::initialize(FILE** fp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int sz = size - hs;
+    ::fseek(*fp, sp + hs, SEEK_SET);
+    unsigned char* buf = new unsigned char[sz];
+    ::fread(buf, 1, sz, *fp);
+
+    unsigned char* curr = buf;
+
+    return ret;
+}
+
 void MfroBox::display()
 {
 }
 
-RtmpBox::RtmpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+
+/*
+RtmpBox::RtmpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2202,8 +2370,8 @@ void RtmpBox::display()
 {
 }
 
-AmhpBox::AmhpBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AmhpBox::AmhpBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2215,8 +2383,8 @@ void AmhpBox::display()
 {
 }
 
-AmtoBox::AmtoBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AmtoBox::AmtoBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2228,8 +2396,8 @@ void AmtoBox::display()
 {
 }
 
-EncvBox::EncvBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+EncvBox::EncvBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2241,8 +2409,8 @@ void EncvBox::display()
 {
 }
 
-EncaBox::EncaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+EncaBox::EncaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2254,8 +2422,8 @@ void EncaBox::display()
 {
 }
 
-EncrBox::EncrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+EncrBox::EncrBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2267,8 +2435,8 @@ void EncrBox::display()
 {
 }
 
-SinfBox::SinfBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+SinfBox::SinfBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2280,8 +2448,8 @@ void SinfBox::display()
 {
 }
 
-FrmaBox::FrmaBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+FrmaBox::FrmaBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2293,8 +2461,8 @@ void FrmaBox::display()
 {
 }
 
-SchmBox::SchmBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+SchmBox::SchmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2306,8 +2474,8 @@ void SchmBox::display()
 {
 }
 
-SchiBox::SchiBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+SchiBox::SchiBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2319,8 +2487,8 @@ void SchiBox::display()
 {
 }
 
-AdkmBox::AdkmBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AdkmBox::AdkmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2332,8 +2500,8 @@ void AdkmBox::display()
 {
 }
 
-AhdrBox::AhdrBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AhdrBox::AhdrBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2345,8 +2513,8 @@ void AhdrBox::display()
 {
 }
 
-AprmBox::AprmBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AprmBox::AprmBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2358,8 +2526,8 @@ void AprmBox::display()
 {
 }
 
-AeibBox::AeibBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AeibBox::AeibBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2371,8 +2539,8 @@ void AeibBox::display()
 {
 }
 
-AkeyBox::AkeyBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AkeyBox::AkeyBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2384,8 +2552,8 @@ void AkeyBox::display()
 {
 }
 
-ApsBox::ApsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+ApsBox::ApsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2397,8 +2565,8 @@ void ApsBox::display()
 {
 }
 
-FlxsBox::FlxsBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+FlxsBox::FlxsBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2410,8 +2578,8 @@ void FlxsBox::display()
 {
 }
 
-AsigBox::AsigBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AsigBox::AsigBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2423,8 +2591,8 @@ void AsigBox::display()
 {
 }
 
-AdafBox::AdafBox(uint64_t st, uint64_t sz, int32_t ty, uint32_t hs, uint64_t ed, uint32_t off, bool ic)
-: F4vBox(st, sz, ty, hs, ed, off, ic)
+AdafBox::AdafBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
+: F4vBox(start_position, size, type, header_size, end_position)
 {
 }
 
@@ -2435,3 +2603,4 @@ AdafBox::~AdafBox()
 void AdafBox::display()
 {
 }
+*/
