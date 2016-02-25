@@ -223,9 +223,10 @@ int F4vFileParser::parse_sample()
             }
         }
 
-        // get each sample's size, duration
+        // get each sample's size, type
         for(uint32_t i = 0; i < stszb->size_count; i++) {
             f4v_samples[i].size = stszb->size_table[i];
+            f4v_samples[i].type = hdb->handler_type;
         }
 
         // get each sample's offset
@@ -268,12 +269,28 @@ int F4vFileParser::show()
         fb->display();
     }
 
+    if ((ret = show_sample()) != ERROR_SUCCESS) {
+        f4v_error("show sample failed. ret=%d", ret);
+        return ret;
+    }
+
     return ret;
 }
 
 int F4vFileParser::show_sample()
 {
     int ret = ERROR_SUCCESS;
+    
+    vector< vector<F4vSample> >::iterator vv_it;
+
+    for (vv_it = f4v_vvs.begin(); vv_it != f4v_vvs.end(); vv_it++) {
+        std::vector<F4vSample> vfs = *vv_it;
+        vector<F4vSample>::iterator v_it;
+        for (v_it = vfs.begin(); v_it != vfs.end(); v_it++) {
+            F4vSample fs = *v_it;
+            fs.display();
+        }
+    }
 
     return ret;
 }

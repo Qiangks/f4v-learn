@@ -24,8 +24,8 @@ int F4vSample::display()
 {
     int ret = ERROR_SUCCESS;
 
-    f4v_trace("sample size: %d, sample duration: %d, sample offset: %d, sample chunk index: %d "
-                    "sample index in chunk: %d", size, duration, offset, chunk_index, index_in_chunk);
+    f4v_trace("sample: type=%s, size=%d, duration=%d, offset=%d, chunk index=%d, index in chunk=: %d",
+        f4v_int2str(type).c_str(), size, duration, offset, chunk_index, index_in_chunk);
 
     return ret;
 }
