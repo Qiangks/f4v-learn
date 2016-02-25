@@ -176,7 +176,7 @@ int F4vFileParser::parse_sample()
     for (it = traks.begin(); it != traks.end(); it++) {
         F4vBox* tkb = *it;
         F4vBox* mdb = get_box(tkb, mdia);
-        F4vBox* hdb = get_box(mdb, hdlr);
+        HdlrBox* hdb = dynamic_cast<HdlrBox*>(get_box(mdb, hdlr));
         F4vBox* mfb = get_box(mdb, minf);
         F4vBox* stblb = get_box(mfb, stbl);
         StsdBox* stsdb = dynamic_cast<StsdBox*>(get_box(stblb, stsd));
@@ -239,8 +239,6 @@ int F4vFileParser::parse_sample()
         }
 
         // get each sample's duration
-        int record_no = 0;
-        int count = 0;
         for(int i = 0; i < sttsb->count; i++) {
             count = count + sttsb->stts_records[i].sample_count;
 

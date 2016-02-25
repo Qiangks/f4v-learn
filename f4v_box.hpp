@@ -13,17 +13,26 @@
 class F4vSample
 {
 public:
-    int size;
-    int duration;
-    int offset;
-    int chunk_index;
-    int index_in_chunk;
+    uint32_t offset;
+    uint32_t size;
+    uint32_t duration;
+    uint32_t chunk_index;
+    uint32_t index_in_chunk;
 public:
     F4vSample();
     virtual ~F4vSample();
 public:
-    virtual int display();
+    int display();
+    
 };
+
+typedef struct _f4v_chunk
+{
+    uint32_t first_sample_index;
+    uint32_t sample_count;
+    // sample id
+    uint32_t sdi;
+}F4vChunk;
 
 
 class F4vBox
