@@ -44,8 +44,8 @@ public:
     F4vBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~F4vBox();
 public:
-    virtual int initialize(FILE** fp) = 0;
-    virtual void display() = 0;
+    virtual int initialize(FILE** fp);
+    virtual void display();
 };
 
 
