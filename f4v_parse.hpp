@@ -41,10 +41,16 @@ private:
 private:    
     int read(uint64_t start, uint64_t end);
     int parse();
+    int parse_sample();
 public:
     virtual int show();
+    virtual int show_sample();
 private:
     int64_t get_filesize();
+    F4vBox* get_box(std::string type);
+    F4vBox* get_box(F4vBox* fb, int32_t type);
+    F4vBox* get_moov();
+    std::vector<F4vBox*> get_traks();
 };
 
 #endif //F4V_PARSEER_F4V_READ_HPP

@@ -131,6 +131,7 @@ public:
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
     int add(F4vBox* fb);
     virtual void display();
+    virtual F4vBox* get_box(std::string type);    
 };
 
 class MvhdBox : public F4vBox

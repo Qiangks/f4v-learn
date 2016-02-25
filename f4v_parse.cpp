@@ -47,6 +47,11 @@ int F4vFileParser::initialize()
         return ret;
     }
 
+    if ((ret = parse_sample()) != ERROR_SUCCESS) {
+        f4v_error("parse sample failed. ret=%d", ret);
+        return ret;    
+    }
+
     return ret;
 }
 
@@ -162,6 +167,32 @@ int F4vFileParser::parse()
     return ret;
 }
 
+int F4vFileParser::parse_sample()
+{
+    int ret = ERROR_SUCCESS;
+
+    std::vector<F4vBox*> traks = get_traks();
+    std::vector<F4vBox*>::iterator it;
+    for (it = traks.begin(); it != traks.end(); it++) {
+        F4vBox* tkb = *it;
+        F4vBox* mdb = get_box(tkb, mdia);
+        F4vBox* hdb = get_box(mdb, hdlr);
+        F4vBox* mfb = get_box(mdb, minf);
+        F4vBox* stblb = get_box(mfb, stbl);
+        F4vBox* stsdb = get_box(stblb, stsd);
+        F4vBox* sttsb = get_box(stblb, stts);
+        F4vBox* cttsb = get_box(stblb, ctts);
+        F4vBox* stscb = get_box(stblb, stsc);
+        F4vBox* stszb = get_box(stblb, stsz);
+        F4vBox* stcob = get_box(stblb, stco);
+        F4vBox* stssb = get_box(stblb, stss);
+        F4vBox* sdtpb = get_box(stblb, sdtp);
+        
+    }
+
+    return ret;
+}
+
 int F4vFileParser::show()
 {
     int ret = ERROR_SUCCESS;
@@ -176,6 +207,13 @@ int F4vFileParser::show()
     return ret;
 }
 
+int F4vFileParser::show_sample()
+{
+    int ret = ERROR_SUCCESS;
+
+    return ret;
+}
+
 int64_t F4vFileParser::get_filesize()
 {
     int64_t cur = ftell(fp);
@@ -183,4 +221,55 @@ int64_t F4vFileParser::get_filesize()
     int64_t size = ftell(fp);
     ::fseek(fp, cur, SEEK_SET);
     return size;
+}
+
+F4vBox* F4vFileParser::get_box(std::string type)
+{
+    std::vector<F4vBox*>::iterator it;
+    for (it = f4v_boxes.begin(); it != f4v_boxes.end(); it++) 
+    {
+        F4vBox* fb = *it;
+        string box_type = f4v_int2str(fb->type);
+        if (box_type == type) {
+            return fb;
+        }
+    }
+
+    return NULL;
+}
+
+F4vBox* F4vFileParser::get_box(F4vBox* fb, int32_t type)
+{
+    std::vector<F4vBox*>::iterator it;
+    for (it = fb->container.begin(); it != fb->container.end(); it++) {
+        F4vBox* f = *it;
+        if (f->type == type) {
+            return f;
+        }
+    }
+
+    return NULL;
+}
+
+F4vBox* F4vFileParser::get_moov()
+{
+    return get_box("moov");
+}
+
+std::vector<F4vBox*> F4vFileParser::get_traks()
+{
+    std::vector<F4vBox*> traks;
+
+    F4vBox* mvb = get_moov();
+    assert(mvb != NULL);
+
+    std::vector<F4vBox*>::iterator it;
+    for (it = mvb->container.begin(); it != mvb->container.end(); it++) {
+        F4vBox* tkb = get_box(mvb, trak);
+        if (tkb != NULL) {
+            traks.push_back(tkb);
+        }
+    }
+
+    return traks;
 }

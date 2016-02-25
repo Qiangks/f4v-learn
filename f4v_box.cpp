@@ -399,6 +399,21 @@ void MoovBox::display()
     }
 }
 
+F4vBox* MoovBox::get_box(string type)
+{
+    std::vector<F4vBox*>::iterator it;
+    for (it = container.begin(); it != container.end(); it++) 
+    {
+        F4vBox* fb = *it;
+        string box_type = f4v_int2str(fb->type);
+        if (box_type == type) {
+            return fb;
+        }
+    }
+
+    return NULL;
+}
+
 MvhdBox::MvhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position)
 : F4vBox(start_position, size, type, header_size, end_position)
 {
