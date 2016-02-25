@@ -268,12 +268,12 @@ int F4vFileParser::show()
         F4vBox* fb = *it;
         fb->display();
     }
-
+/*
     if ((ret = show_sample()) != ERROR_SUCCESS) {
         f4v_error("show sample failed. ret=%d", ret);
         return ret;
     }
-
+*/
     return ret;
 }
 
