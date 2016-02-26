@@ -155,6 +155,8 @@ public:
     uint32_t timescale;
     uint64_t duration;
     float rate;
+    float volume;
+    uint32_t next_trackid;
 public:
     MvhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~MvhdBox();
@@ -185,6 +187,10 @@ public:
     uint64_t modification_time;
     uint32_t trak_id;
     uint64_t duration;
+    uint32_t layer;
+    float volume;
+    float width;
+    float height;
 public:
     TkhdBox(uint64_t start_position, uint64_t size, int32_t type, uint32_t header_size, uint64_t end_position);
     virtual ~TkhdBox();

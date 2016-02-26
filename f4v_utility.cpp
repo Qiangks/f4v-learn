@@ -74,6 +74,12 @@ uint32_t f4v_bytes_to_uint32(unsigned char** buf, int num)
     return temp;
 }
 
+unsigned char* f4v_skip_bytes(unsigned char* buf, int num)
+{
+    buf = buf + num;
+    return buf;
+}
+
 string f4v_int2str(int32_t value)
 {
     char *pp = (char*)(&value);

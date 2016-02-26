@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
             "          ./f4v [filename]\n"
             "for example:               \n"
             "           ./f4v 1.mp4\n");
-        return -1;                
+        return ERROR_PARAMETER_ERROR;          
     }
     
     F4vFileParser* f4vfile = new F4vFileParser(argv[1]);

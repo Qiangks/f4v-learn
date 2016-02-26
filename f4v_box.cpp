@@ -446,22 +446,29 @@ int MvhdBox::initialize(FILE** fp)
         modification_time = f4v_bytes_to_uint32(&curr, 4);
         timescale = f4v_bytes_to_uint32(&curr, 4);
         duration = f4v_bytes_to_uint32(&curr, 4);
-        rate = f4v_bytes_to_uint32(&curr, 2) + (float)f4v_bytes_to_uint32(&curr, 2)/10;
     } else {
         creation_time = f4v_bytes_to_uint32(&curr, 8);
         modification_time = f4v_bytes_to_uint32(&curr, 8);
         timescale = f4v_bytes_to_uint32(&curr, 4);
         duration = f4v_bytes_to_uint32(&curr, 8);
-        rate = f4v_bytes_to_uint32(&curr, 2) + (float)f4v_bytes_to_uint32(&curr, 2)/10;
     }
+    
+    rate = f4v_bytes_to_uint32(&curr, 2) + (float)f4v_bytes_to_uint32(&curr, 2)/10;
+    volume = f4v_bytes_to_uint32(&curr, 1) + (float)f4v_bytes_to_uint32(&curr, 1)/10;
 
+    curr = f4v_skip_bytes(curr, 70);
+    next_trackid = f4v_bytes_to_uint32(&curr, 4);
+
+    assert (curr -buf == sz);
+    
     return ret;
 }
 
 void MvhdBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, TimeScale: %d, Duration: %ld, "
-        "Rate: %0.1f", f4v_int2str(type).c_str(), size, creation_time, modification_time, timescale, duration, rate);
+        "Rate: %0.1f, Volume: %0.1f, NextTrackID: %d", f4v_int2str(type).c_str(), size, creation_time, modification_time,
+        timescale, duration, rate, volume, next_trackid);
 
     if (container.size() == 0) {
         return;
@@ -587,16 +594,30 @@ int TkhdBox::initialize(FILE** fp)
         modification_time = f4v_bytes_to_uint32(&curr, 4);
         trak_id= f4v_bytes_to_uint32(&curr, 4);
         // skip the reserved
-        curr = curr + 4;
+        curr = f4v_skip_bytes(curr, 4);
         duration = f4v_bytes_to_uint32(&curr, 4);
     } else {
         creation_time = f4v_bytes_to_uint32(&curr, 8);
         modification_time = f4v_bytes_to_uint32(&curr, 8);
         trak_id = f4v_bytes_to_uint32(&curr, 4);
         // skip the reserved
-        curr = curr + 4;
+        curr = f4v_skip_bytes(curr, 4);
         duration = f4v_bytes_to_uint32(&curr, 8);
     }
+    curr = f4v_skip_bytes(curr, 8);
+    layer = f4v_bytes_to_uint32(&curr, 2);
+    // skip the AlternateGroup
+    curr = f4v_skip_bytes(curr, 2);
+
+    volume = f4v_bytes_to_uint32(&curr, 1) + (float)f4v_bytes_to_uint32(&curr, 1)/10;
+
+    // skip the Reserved TransformMatrix
+    curr = f4v_skip_bytes(curr, 38);
+
+    width = f4v_bytes_to_uint32(&curr, 2) + (float)f4v_bytes_to_uint32(&curr, 2)/10;
+    height = f4v_bytes_to_uint32(&curr, 2) + (float)f4v_bytes_to_uint32(&curr, 2)/10;
+
+    assert (curr - buf == sz);
 
     return ret;
 }
@@ -604,8 +625,8 @@ int TkhdBox::initialize(FILE** fp)
 void TkhdBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld, CreationTime: %ld, ModificationTime: %ld, Duration: %ld, "
-        "TrakID: %d", f4v_int2str(type).c_str(), size, creation_time, modification_time,
-        duration, trak_id);
+        "TrakID: %d, Layer: %d, Volume: %0.1f, Width: %0.1f, Height: %0.1f", f4v_int2str(type).c_str(), size,
+        creation_time, modification_time, duration, trak_id, layer, volume, width, height);
 
     if (container.size() == 0) {
         return;

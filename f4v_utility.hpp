@@ -11,6 +11,8 @@ int get_box_header(FILE** fp, uint32_t& hs, uint32_t& type, uint64_t& size, uint
 
 uint32_t f4v_bytes_to_uint32(unsigned char** buf, int num);
 
+unsigned char* f4v_skip_bytes(unsigned char* buf, int num);
+
 std::string f4v_int2str(int32_t value);
 
 void parse_ftyp();

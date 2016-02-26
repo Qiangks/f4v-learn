@@ -134,3 +134,4 @@ void F4vLog::error(const char *file, int line, const char *msg, ...)
 
     delete[] log_data;
 }
+
