@@ -50,6 +50,19 @@ F4vBox::~F4vBox()
  int F4vBox::initialize(FILE** fp)
  {
  }
+
+int F4vBox::add(F4vBox* fb)
+{
+    int ret = ERROR_SUCCESS;
+
+    vector<F4vBox*>::iterator it;
+    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
+        return ret;
+    }
+    container.push_back(fb);
+    
+    return ret;
+}
  
  void F4vBox::display()
  {
@@ -377,19 +390,6 @@ int MoovBox::read(FILE** fp, uint64_t start, uint64_t end)
     return ret;
 }
 
-int MoovBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
 void MoovBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
@@ -547,19 +547,6 @@ int TrakBox::read(FILE** fp, uint64_t start, uint64_t end)
     return ret;
 }
 
-int TrakBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
 void TrakBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
@@ -698,19 +685,6 @@ int EdtsBox::read(FILE** fp, uint64_t start, uint64_t end)
     return ret;
 }
 
-int EdtsBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
 void EdtsBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
@@ -833,20 +807,6 @@ int MdiaBox::read(FILE** fp, uint64_t start, uint64_t end)
         ::fseek(*fp, ep, SEEK_SET);
     }
 
-    return ret;
-}
-
-
-int MdiaBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
     return ret;
 }
 
@@ -1038,19 +998,6 @@ int MinfBox::read(FILE** fp, uint64_t start, uint64_t end)
         ::fseek(*fp, ep, SEEK_SET);
     }
 
-    return ret;
-}
-
-int MinfBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
     return ret;
 }
 
@@ -1295,19 +1242,6 @@ int DinfBox::read(FILE** fp, uint64_t start, uint64_t end)
     return ret;
 }
 
-int DinfBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
 void DinfBox::display()
 {
      f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
@@ -1398,19 +1332,6 @@ int DrefBox::read(FILE** fp, uint64_t start, uint64_t end)
         ::fseek(*fp, ep, SEEK_SET);
     }
 
-    return ret;
-}
-
-int DrefBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
     return ret;
 }
 
@@ -1562,19 +1483,6 @@ int StblBox::read(FILE** fp, uint64_t start, uint64_t end)
     return ret;
 }
 
-int StblBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
 void StblBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
@@ -1668,19 +1576,6 @@ int StsdBox::read(FILE** fp, uint64_t start, uint64_t end)
         ::fseek(*fp, ep, SEEK_SET);
     }
 
-    return ret;
-}
-
-int StsdBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
     return ret;
 }
 
@@ -2122,20 +2017,6 @@ int MvexBox::read(FILE** fp, uint64_t start, uint64_t end)
     return ret;
 }
 
-int MvexBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
-}
-
-
 void MvexBox::display()
 {
     f4v_trace("Box Type: %s, Box Size: %ld", f4v_int2str(type).c_str(), size);
@@ -2515,19 +2396,6 @@ int MoofBox::read(FILE** fp, uint64_t start, uint64_t end)
 
         ::fseek(*fp, ep, SEEK_SET);
     }
-}
-
-int MoofBox::add(F4vBox* fb)
-{
-    int ret = ERROR_SUCCESS;
-
-    vector<F4vBox*>::iterator it;
-    if((it = find(container.begin(), container.end(), fb)) != container.end()) {
-        return ret;
-    }
-    container.push_back(fb);
-    
-    return ret;
 }
 
 void MoofBox::display()

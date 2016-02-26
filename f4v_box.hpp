@@ -56,6 +56,7 @@ public:
     virtual ~F4vBox();
 public:
     virtual int initialize(FILE** fp);
+    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -140,7 +141,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    int add(F4vBox* fb);
     virtual void display();
     virtual F4vBox* get_box(std::string type);    
 };
@@ -173,7 +173,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -204,7 +203,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -230,7 +228,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -276,7 +273,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -343,7 +339,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -359,7 +354,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -386,7 +380,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -403,7 +396,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -550,7 +542,6 @@ public:
 public:
     virtual int initialize(FILE** fp);
     virtual int read(FILE** fp, uint64_t start, uint64_t end);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
@@ -661,7 +652,6 @@ public:
     int read(FILE** fp, uint64_t start, uint64_t end);
 public:
     virtual int initialize(FILE** fp);
-    virtual int add(F4vBox* fb);
     virtual void display();
 };
 
